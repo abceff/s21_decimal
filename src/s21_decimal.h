@@ -1,3 +1,14 @@
+#ifndef SRC_S21_DECIMAL_H_
+#define SRC_S21_DECIMAL_H_
+
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define s21_NAN 0.0 / 0.0
+#define s21_INF 1.0 / 0.0
+
 typedef struct {
     int bits[4];
 } s21_decimal;
@@ -25,3 +36,4 @@ int s21_round(s21_decimal value, s21_decimal *result);
 int s21_truncate(s21_decimal value, s21_decimal *result);
 int s21_negate(s21_decimal value, s21_decimal *result);
 
+#endif  // SRC_S21_DECIMAL_H_
