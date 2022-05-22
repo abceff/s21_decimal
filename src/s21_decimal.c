@@ -26,19 +26,23 @@ int get_bit(s21_decimal value, int index) {
     return res.bits[element_number] ? 1 : 0;
 }
 
-void set_bit(s21_decimal* value, int index) {
+void set_bit(s21_decimal* value, int index, int set_value) {
     unsigned int element_number = get_element_number(index);
-    value->bits[element_number] = value->bits[element_number] |
+    if (set_value)
+        value->bits[element_number] = value->bits[element_number] |
                             get_mask(index, 1);
+    else
+        value->bits[element_number] = value->bits[element_number] &
+                            ~get_mask(index, 1);
 }
 
-// int main() {
-//     s21_decimal value;
-//     for (int i = 0; i < 4; i++) {
-//         value.bits[i] = 0;
-//     }
-//     // value.bits[0] = 2;
-//     set_bit(&value, 3);
-//     printf("%d\n", value.bits[0]);
-//     return 0;
-// }
+int main() {
+    s21_decimal value;
+    for (int i = 0; i < 4; i++) {
+        value.bits[i] = 0;
+    }
+    value.bits[0] = 3;
+    set_bit(&value, 0, 0);
+    printf("%d\n", value.bits[0]);
+    return 0;
+}
