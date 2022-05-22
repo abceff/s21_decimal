@@ -1,39 +1,35 @@
 #include "s21_decimal.h"
 
-s21_decimal get_mask(unsigned int index, unsigned int n,
-                     unsigned int byte_number) {
-    s21_decimal res;
-    for (int i = 0; i < 4; i++) {
-        res.bits[i] = 0;
-    }
-    
-    if (index <= 31)  // 0 <= index <= 31
-        byte_number = 0;
-    else if (index <= 63)  // 32 <= index <= 63
-        byte_number = 1;
-    else  // 64 <= index <= 95
-        byte_number = 2;
-
-    res.bits[byte_number] = ~(4294967295 << n) << index;
+int get_mask(unsigned int index, unsigned int n) {
+    int res = 0;
+    res = ~(4294967295 << n) << index;
 
     return res;
 }
 
-int get_bit(s21_decimal value, int index) {
-    unsigned int byte_number;
+int get_element_number(int index) {
+    unsigned int element_number;
     if (index <= 31)  // 0 <= index <= 31
-        byte_number = 0;
+        element_number = 0;
     else if (index <= 63)  // 32 <= index <= 63
-        byte_number = 1;
+        element_number = 1;
     else  // 64 <= index <= 95
-        byte_number = 2;
+        element_number = 2;
+    return element_number;
+}
+
+int get_bit(s21_decimal value, int index) {
+    unsigned int element_number = get_element_number(index);
     s21_decimal res;
-    res.bits[byte_number] = value.bits[byte_number] &
-                            get_mask(index, 1, byte_number).bits[byte_number];
-    if (res.bits[byte_number] == get_mask(index, 1, byte_number).bits[byte_number])
-        return 1;
-    else
-        return 0;
+    res.bits[element_number] = value.bits[element_number] &
+                            get_mask(index, 1);
+    return res.bits[element_number] ? 1 : 0;
+}
+
+void set_bit(s21_decimal* value, int index) {
+    unsigned int element_number = get_element_number(index);
+    value->bits[element_number] = value->bits[element_number] |
+                            get_mask(index, 1);
 }
 
 // int main() {
@@ -41,7 +37,8 @@ int get_bit(s21_decimal value, int index) {
 //     for (int i = 0; i < 4; i++) {
 //         value.bits[i] = 0;
 //     }
-//     value.bits[0] = 2;
-//     printf("%d\n", get_bit(value, 1));
+//     // value.bits[0] = 2;
+//     set_bit(&value, 3);
+//     printf("%d\n", value.bits[0]);
 //     return 0;
 // }
