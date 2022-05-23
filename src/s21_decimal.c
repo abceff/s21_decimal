@@ -36,13 +36,43 @@ void set_bit(s21_decimal* value, int index, int set_value) {
                             ~get_mask(index, 1);
 }
 
-int main() {
-    s21_decimal value;
-    for (int i = 0; i < 4; i++) {
-        value.bits[i] = 0;
-    }
-    value.bits[0] = 3;
-    set_bit(&value, 0, 0);
-    printf("%d\n", value.bits[0]);
-    return 0;
+void shift(s21_decimal* value) {
+    int bit31 = get_bit(*value, 31);
+    int bit63 = get_bit(*value, 63);
+    value->bits[0] <<= 1;
+    value->bits[1] <<= 1;
+    value->bits[2] <<= 1;
+    if (bit31) value->bits[1] |= 1;
+    if (bit63) value->bits[2] |= 1;
 }
+
+int get_sign(s21_decimal value) {
+    return !!(value.bits[3] & get_mask(31, 1));
+}
+
+int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal *result) {
+    int sign_result;
+    if (get_sign(value_1) == get_sign(value_2))
+        sign_result = 0;
+    else
+        sign_result = 1;
+
+    s21_decimal tmp = value_1;
+    for (int i = 0; i < 96; i++) {
+        if (get_bit(value_2, i)) {
+            s21_add(*result, tmp, result);
+            shift(&tmp);
+        }
+    }
+}
+
+// int main() {
+//     s21_decimal value;
+//     for (int i = 0; i < 4; i++) {
+//         value.bits[i] = 0;
+//     }
+//     value.bits[0] = 3;
+//     set_bit(&value, 0, 0);
+//     printf("%d\n", value.bits[0]);
+//     return 0;
+// }
