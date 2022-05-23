@@ -8,6 +8,14 @@
 
 #define s21_NAN 0.0 / 0.0
 #define s21_INF 1.0 / 0.0
+#define SIGNMASK 0x80000000
+
+enum returns {
+    OK,
+    INF,
+    NEGATIVE_INF,
+    DIVISION_BY_ZERO
+}
 
 typedef struct {
     unsigned int bits[4];
