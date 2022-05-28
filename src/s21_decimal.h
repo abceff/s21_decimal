@@ -8,7 +8,9 @@
 
 #define s21_NAN 0.0 / 0.0
 #define s21_INF 1.0 / 0.0
-#define SIGNMASK 0x80000000
+// #define SIGNMASK 0x80000000
+#define TRUE 0
+#define FALSE 1
 
 enum returns {
     OK,
