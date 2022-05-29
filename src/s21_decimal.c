@@ -37,3 +37,7 @@ int s21_is_equal(s21_decimal value_1, s21_decimal value_2) {
 
     return (is_equal != FALSE) ? TRUE : FALSE;
 }
+
+int s21_is_not_equal(s21_decimal dec1, s21_decimal dec2) {
+    return (!s21_is_equal(dec1, dec2));
+}
