@@ -21,6 +21,14 @@ START_TEST(s21_is_equal_2) {
 }
 END_TEST
 
+START_TEST(s21_is_equal_3) {
+    s21_decimal value_1 = {{0, 0, 0, 0}};
+    s21_decimal value_2 = {{0, 0, 0, 0}};
+    int return_value = s21_is_equal(value_1, value_2);
+    ck_assert_int_eq(return_value, TRUE);
+}
+END_TEST
+
 Suite *lib_suite(void) {
     Suite *s;
     s = suite_create("Check");
@@ -37,6 +45,11 @@ Suite *lib_suite(void) {
     tc_is_equal_2 = tcase_create("s21_is_equal_2");
     suite_add_tcase(s, tc_is_equal_2);
     tcase_add_test(tc_is_equal_2, s21_is_equal_2);
+
+    TCase *tc_is_equal_3;
+    tc_is_equal_3 = tcase_create("s21_is_equal_3");
+    suite_add_tcase(s, tc_is_equal_3);
+    tcase_add_test(tc_is_equal_3, s21_is_equal_3);
 
 
 
