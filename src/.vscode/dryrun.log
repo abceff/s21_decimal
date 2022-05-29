@@ -1,0 +1,13 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/pilafber/Desktop/Current projects/s21_decimal_github/src'
+rm -rf *.o *.g* *.info *.out report *.a *.dSYM
+gcc -std=c11 -Wall -Wextra -Werror -c s21*.c
+ar rcs libs21_decimal.a *.o
+rm -rf *.o
+ranlib libs21_decimal.a
+cp libs21_decimal.a s21_decimal.a
+cp libs21_decimal.a ls21_decimal.a
+gcc -std=c11 -Wall -Wextra -Werror s21_decimal.a tests.c -lcheck -L. -ls21_decimal
+./a.out
+make: Leaving directory `/Users/pilafber/Desktop/Current projects/s21_decimal_github/src'
+ 
