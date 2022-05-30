@@ -93,11 +93,6 @@ Suite *lib_suite(void) {
     suite_add_tcase(s, tc_mul_4);
     tcase_add_test(tc_mul_1, s21_mul_4);
 
-    TCase *tc_mul_4;
-    tc_mul_4 = tcase_create("s21_mul_4");
-    suite_add_tcase(s, tc_mul_5);
-    tcase_add_test(tc_mul_1, s21_mul_4);
-
     return s;
 }
 

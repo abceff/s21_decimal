@@ -127,44 +127,44 @@ int last_bit(s21_decimal number) {
 
 /**
  * @brief Функция переводит число децимал в доп.код
- * @param number_1 указатель на число децимал
+ * @param value_1 указатель на число децимал
  */
-void convert_to_addcode(s21_decimal *number_1) {
+void convert_to_addcode(s21_decimal *value_1) {
     s21_decimal result;
     s21_decimal add = {{1, 0, 0, 0}};
 
-    number_1->bits[0] = ~number_1->bits[0];
-    number_1->bits[1] = ~number_1->bits[1];
-    number_1->bits[2] = ~number_1->bits[2];
+    value_1->bits[0] = ~value_1->bits[0];
+    value_1->bits[1] = ~value_1->bits[1];
+    value_1->bits[2] = ~value_1->bits[2];
 
-    bit_addition(*number_1, add, &result, OK);
+    bit_addition(*value_1, add, &result, OK);
 
-    number_1->bits[0] = result.bits[0];
-    number_1->bits[1] = result.bits[1];
-    number_1->bits[2] = result.bits[2];
+    value_1->bits[0] = result.bits[0];
+    value_1->bits[1] = result.bits[1];
+    value_1->bits[2] = result.bits[2];
 
 }
 
 /**
  * @brief Уравнивает степени двух чисел типа децимал
- * @param number_1 указатель на число децимал
- * @param number_2 указатель на число децимал
+ * @param value_1 указатель на число децимал
+ * @param value_2 указатель на число децимал
  * @return пока что под вопросом что нужно возвращать
  */
-void scale_equalize(s21_decimal *number_1, s21_decimal *number_2) {
+void scale_equalize(s21_decimal *value_1, s21_decimal *value_2) {
     s21_decimal *bigger = NULL;
     s21_decimal *smaller = NULL;
     bigger += 0;
     smaller += 0;
 
-    if (get_scale(number_1) == get_scale(number_2)) {
+    if (get_scale(value_1) == get_scale(value_2)) {
         return;
-    } else if (get_scale(number_1) > get_scale(number_2)) {
-        bigger = number_1;
-        smaller = number_2;
+    } else if (get_scale(value_1) > get_scale(value_2)) {
+        bigger = value_1;
+        smaller = value_2;
     } else {
-        bigger = number_2;
-        smaller = number_1;
+        bigger = value_2;
+        smaller = value_1;
     }
 
     s21_decimal tmp;
@@ -176,7 +176,7 @@ void scale_equalize(s21_decimal *number_1, s21_decimal *number_2) {
     int bit_addition_result = OK;
     int offset_left_result = OK;
     // уравнивание скейлов
-    while (get_scale(number_1) != get_scale(number_2)) {
+    while (get_scale(value_1) != get_scale(value_2)) {
         // if (tmp.value_type == s21_NORMAL_VALUE) {
         //     // по умолчанию двигается в сторону увеличения скейла
 
@@ -265,11 +265,11 @@ int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal* result, int of
 // /**
 //  * @brief Предварительные проверки для check_for_add
 //  *
-//  * @param number_1 первое слагаемое
-//  * @param number_2 второе слагаемое
+//  * @param value_1 первое слагаемое
+//  * @param value_2 второе слагаемое
 //  * @return s21_decimal число в выставленным value_type
 //  */
-// s21_decimal check_for_add(s21_decimal number_1, s21_decimal number_2) {
+// s21_decimal check_for_add(s21_decimal value_1, s21_decimal value_2) {
 //     s21_decimal res = {{0, 0, 0, 0}, s21_NORMAL_VALUE};
 //     /*
 //     num1      num2
@@ -280,13 +280,13 @@ int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal* result, int of
 //     */
 
 //     // простая проверка
-//     res.value_type = number_1.value_type > number_2.value_type
-//                          ? number_1.value_type
-//                          : number_2.value_type;
+//     res.value_type = value_1.value_type > value_2.value_type
+//                          ? value_1.value_type
+//                          : value_2.value_type;
 
-//     if (number_1.value_type != s21_NORMAL_VALUE &&
-//         number_2.value_type != s21_NORMAL_VALUE &&
-//         number_1.value_type != number_2.value_type) {
+//     if (value_1.value_type != s21_NORMAL_VALUE &&
+//         value_2.value_type != s21_NORMAL_VALUE &&
+//         value_1.value_type != value_2.value_type) {
 //         res.value_type = s21_NAN;
 //     }
 //     return res;
@@ -294,82 +294,82 @@ int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal* result, int of
 
 /**
  * @brief Сложение двух чисел децимал
- * @param number_1 число децимал
- * @param number_2 число децимал
+ * @param value_1 число децимал
+ * @param value_2 число децимал
  * @return число цимал
  */
-int s21_add(s21_decimal number_1, s21_decimal number_2, s21_decimal* result) {
+int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
     int return_value = OK;
-    // s21_decimal res = check_for_add(number_1, number_2);
+    // s21_decimal res = check_for_add(value_1, value_2);
 
-    if (!get_sign(&number_1) && !get_sign(&number_2)) {
+    if (!get_sign(&value_1) && !get_sign(&value_2)) {
         //  оба числа положительных
 
-        if (get_scale(&number_1) != get_scale(&number_2)) {
-            scale_equalize(&number_1, &number_2);
+        if (get_scale(&value_1) != get_scale(&value_2)) {
+            scale_equalize(&value_1, &value_2);
         }
 
         int bit_additioin_result = OK;
         s21_decimal tmpRes;
-        bit_additioin_result = bit_addition(number_1, number_2, &tmpRes, OK);
+        bit_additioin_result = bit_addition(value_1, value_2, &tmpRes, OK);
 
         if (bit_additioin_result == INF &&
-            get_scale(&number_1) == 0) {
+            get_scale(&value_1) == 0) {
             // значит в результате бесконечность
             return_value = INF;
 
         } else if (bit_additioin_result == INF &&
-                    get_scale(&number_1) > 0) {
+                    get_scale(&value_1) > 0) {
             // можем понизить скейл
             while (bit_additioin_result == INF &&
-                    (get_scale(&number_1) > 0 && get_scale(&number_2) > 0)) {
+                    (get_scale(&value_1) > 0 && get_scale(&value_2) > 0)) {
                 // оба числа делим на 10, если позволяет скейл
 
                 s21_decimal ten = {{10, 0, 0, 0}};
                 s21_decimal remainder1, remainder2;
                 s21_decimal tmpDiv1;
-                div_only_bits(number_1, ten, &remainder1, &tmpDiv1);
+                div_only_bits(value_1, ten, &remainder1, &tmpDiv1);
                 s21_decimal tmpDiv2;
-                div_only_bits(number_2, ten, &remainder2, &tmpDiv2);
+                div_only_bits(value_2, ten, &remainder2, &tmpDiv2);
 
                 // обезопасимся от обнуления
                 s21_decimal zero = {{0, 0, 0, 0}};
 
                 zero_check(tmpDiv1, zero) == 1
-                    ? bits_copy(tmpDiv1, &number_1)
-                    : bits_copy(remainder1, &number_1);
+                    ? bits_copy(tmpDiv1, &value_1)
+                    : bits_copy(remainder1, &value_1);
                 zero_check(tmpDiv2, zero) == 1
-                    ? bits_copy(tmpDiv2, &number_2)
-                    : bits_copy(remainder2, &number_2);
+                    ? bits_copy(tmpDiv2, &value_2)
+                    : bits_copy(remainder2, &value_2);
 
-                set_scale(&number_1, get_scale(&number_1) - 1);
-                set_scale(&number_2, get_scale(&number_2) - 1);
-                s21_add(number_1, number_2, result);
+                set_scale(&value_1, get_scale(&value_1) - 1);
+                set_scale(&value_2, get_scale(&value_2) - 1);
+                s21_add(value_1, value_2, result);
             }
 
         } else {
             // результат можно сразу присвоить
             *result = tmpRes;
-            result->bits[3] = number_1.bits[3];
+            result->bits[3] = value_1.bits[3];
         }
 
-    } else if (get_sign(&number_1) && !get_sign(&number_2)) {
+    } else if (get_sign(&value_1) && !get_sign(&value_2)) {
         // 1 число отрецательное 2 число положительное
         // вызывается функция вычитания которая
         // создает доп код и сново вызывает сложение
-        set_sign(&number_1, 0);
-        s21_sub(number_2, number_1, result);
+        set_sign(&value_1, 0);
+        s21_sub(value_2, value_1, result);
 
-    } else if (!get_sign(&number_1) && get_sign(&number_2)) {
+    } else if (!get_sign(&value_1) && get_sign(&value_2)) {
         // 1 полож 2 отрец
-        set_sign(&number_2, 0);
-        s21_sub(number_1, number_2, result);
+        set_sign(&value_2, 0);
+        s21_sub(value_1, value_2, result);
 
     } else {
         // оба отрицательных
-        set_sign(&number_1, 0);
-        set_sign(&number_2, 0);
-        s21_add(number_1, number_2, result);
+        set_sign(&value_1, 0);
+        set_sign(&value_2, 0);
+        s21_add(value_1, value_2, result);
         set_sign(result, 1);
         // if (res.value_type == s21_INFINITY) {
         //     res.value_type = s21_NEGATIVE_INFINITY;
@@ -382,50 +382,50 @@ int s21_add(s21_decimal number_1, s21_decimal number_2, s21_decimal* result) {
 
 /**
  * @brief Разница чисел децимал
- * @param number_1 число децимал 1
- * @param number_2 число децимал 2
+ * @param value_1 число децимал 1
+ * @param value_2 число децимал 2
  * @return Возвращает разницу
  */
-int s21_sub(s21_decimal number_1, s21_decimal number_2, s21_decimal* result) {
+int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
     int return_value = OK;
     // s21_decimal res = {0, 0, 0, 0};
 
-    if (get_scale(&number_1) != get_scale(&number_2)) {
-        scale_equalize(&number_1, &number_2);
+    if (get_scale(&value_1) != get_scale(&value_2)) {
+        scale_equalize(&value_1, &value_2);
     }
 
     int resultSign;
 
     // проверяем на знаки
-    if (get_sign(&number_1) != get_sign(&number_2)) {
+    if (get_sign(&value_1) != get_sign(&value_2)) {
         // знаки разные - ситуация вырождается в ++ или --
-        resultSign = get_sign(&number_1);
-        set_sign(&number_1, 0);
-        set_sign(&number_2, 0);
-        s21_add(number_1, number_2, result);
+        resultSign = get_sign(&value_1);
+        set_sign(&value_1, 0);
+        set_sign(&value_2, 0);
+        s21_add(value_1, value_2, result);
         set_sign(result, resultSign);
 
     } else {
         // знаки одинаковые - ситуация вырождается в -+ или +-
-        if (s21_is_equal(number_1, number_2) == TRUE) {
+        if (s21_is_equal(value_1, value_2) == TRUE) {
             // они равны, все ок, ничего не делаем, в результате уже лежит 0
 
         } else {
             // числа разные, значит нужно знать какой знак проставлять и тд
-            int sign1 = get_sign(&number_1);
-            int sign2 = get_sign(&number_2);
-            set_sign(&number_1, 0);
-            set_sign(&number_2, 0);
+            int sign1 = get_sign(&value_1);
+            int sign2 = get_sign(&value_2);
+            set_sign(&value_1, 0);
+            set_sign(&value_2, 0);
             s21_decimal *smallPtr, *bigPtr;
 
             // кто из них больше по модулю
-            if (s21_is_less(number_1, number_2) == TRUE) {
-                smallPtr = &number_1;
-                bigPtr = &number_2;
+            if (s21_is_less(value_1, value_2) == TRUE) {
+                smallPtr = &value_1;
+                bigPtr = &value_2;
                 resultSign = !sign2;
             } else {
-                smallPtr = &number_2;
-                bigPtr = &number_1;
+                smallPtr = &value_2;
+                bigPtr = &value_1;
                 resultSign = sign1;
             }
 
@@ -444,39 +444,39 @@ int s21_sub(s21_decimal number_1, s21_decimal number_2, s21_decimal* result) {
 /**
  * @brief Проверка аргументов перед умножением
  *
- * @param number_1 первый множитель
- * @param number_2 второй множитель
+ * @param value_1 первый множитель
+ * @param value_2 второй множитель
  * @return int число, в котором выставлен соотв. флаг
  */
 
-// int check_for_mul(s21_decimal number_1, s21_decimal number_2) {
+// int check_for_mul(s21_decimal value_1, s21_decimal value_2) {
 //     int return_value = OK;
 //     // s21_decimal res = {{0, 0, 0, 0}, s21_NORMAL_VALUE};
 
 //     // проверки аргументов
     
-//     // int there_is_nan = is_NAN(&number_1, &number_2) == TRUE ? 1 : 0;  // У нас число не может быть nan
-//     // int there_is_neg_inf = is_neg_inf(&number_1, &number_2) != 0 ? 1 : 0;
-//     // int there_is_inf = is_inf(&number_1, &number_2) != 0 ? 1 : 0;
+//     // int there_is_nan = is_NAN(&value_1, &value_2) == TRUE ? 1 : 0;  // У нас число не может быть nan
+//     // int there_is_neg_inf = is_neg_inf(&value_1, &value_2) != 0 ? 1 : 0;
+//     // int there_is_inf = is_inf(&value_1, &value_2) != 0 ? 1 : 0;
 //     s21_decimal zero = {0, 0, 0, 0};
-//     int there_is_zero = s21_is_equal(number_1, zero) == TRUE ||
-//                                 s21_is_equal(number_2, zero) == TRUE
+//     int there_is_zero = s21_is_equal(value_1, zero) == TRUE ||
+//                                 s21_is_equal(value_2, zero) == TRUE
 //                             ? 1
 //                             : 0;
 
 //     int there_is_plus_normal =
-//         (s21_is_greater(number_1, zero) == TRUE) ||
-//                 (s21_is_greater(number_2, zero) == TRUE)
+//         (s21_is_greater(value_1, zero) == TRUE) ||
+//                 (s21_is_greater(value_2, zero) == TRUE)
 //             ? 1
 //             : 0;
 
-//     int there_is_neg_normal = (s21_is_less(number_1, zero) == TRUE) ||
-//                                       (s21_is_less(number_2, zero) == TRUE)
+//     int there_is_neg_normal = (s21_is_less(value_1, zero) == TRUE) ||
+//                                       (s21_is_less(value_2, zero) == TRUE)
 //                                   ? 1
 //                                   : 0;
 
 //     // res.value_type =
-//     //     number_1.value_type ? number_1.value_type : number_2.value_type;
+//     //     value_1.value_type ? value_1.value_type : value_2.value_type;
 
 //     // if (there_is_nan || (there_is_zero && there_is_inf) ||
 //     //     (there_is_zero && there_is_neg_inf)) {
@@ -486,83 +486,51 @@ int s21_sub(s21_decimal number_1, s21_decimal number_2, s21_decimal* result) {
 //     return res;
 // }
 
+void from_decimal_to_super_decimal(s21_decimal* decimal, super_s21_decimal* super_decimal){
+    for (int i = 0; i < 4; i++) {
+        super_decimal->bits[i] = decimal->bits[i];
+    }
+}
+
 /**
  * @brief функция умножение двух чисел децимал
- * @param number_1
- * @param number_2
+ * @param value_1
+ * @param value_2
  * @return s21_decimal
  */
-int s21_mul(s21_decimal number_1, s21_decimal number_2, s21_decimal* result) {
+int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
     int return_value = OK;
     int sign_result;
 
-    if (get_sign(&number_1) != get_sign(&number_2)) {
+    if (get_sign(&value_1) != get_sign(&value_2)) {
         sign_result = 1;
     } else {
         sign_result = 0;
     }
 
-    int last_bit_1 = last_bit(number_1);  // Находим последнюю единицу справа налево
-    s21_decimal tmp_res = {{0, 0, 0, 0}};
+    int last_bit_1 = last_bit(value_1);  // Находим последнюю единицу справа налево
+    super_s21_decimal tmp_res;
 
-    int bit_addition_result = OK;
-    int offset_left_result = OK;
+    super_s21_decimal result = {0};
+
     // само умножение
     for (int i = 0; i <= last_bit_1; i++) {
 
         clear_bits(&tmp_res);
-        int value_bit_1 = get_bit(number_1, i);
+        int value_bit_1 = get_bit(value_1, i);
 
         if (value_bit_1) {
-            tmp_res = number_2;
-            offset_left_result = offset_left(&tmp_res, i);
-            bit_addition_result = bit_addition(*result, tmp_res, result, offset_left_result);
+            for (int j = 0; j < 4; j++)
+                tmp_res.bits[j] = value_2.bits[j];
+            offset_left(&tmp_res, i);
+            bit_addition(*result, tmp_res, result, offset_left_result);
         }
     }
-
-    // если на предыдущем этапе было выставлено INFINITY,
-    // то если позволяет скейл, привести в нужный диапазон
-    // и попробовать умножить снова
-
-    // while (bit_addition_result != OK &&
-    //         (get_scale(&number_1) > 0 || get_scale(&number_2) > 0)) {
-    //     // более точное число поделим на 10, если позволяет скейл
-
-    //     s21_decimal *chosen_numberPtr, *other_numberPtr;
-    //     if (last_bit(number_1) > last_bit(number_2) &&
-    //         get_scale(&number_1) > 0) {
-    //         chosen_numberPtr = &number_1;
-    //         other_numberPtr = &number_2;
-    //     } else if (last_bit(number_2) > last_bit(number_1) &&
-    //                 get_scale(&number_2) > 0) {
-    //         chosen_numberPtr = &number_2;
-    //         other_numberPtr = &number_1;
-    //     } else {
-    //         break;
-    //     }
-
-    //     int chos_number_scale = get_scale(chosen_numberPtr);
-    //     s21_decimal ten = {{10, 0, 0, 0}};
-    //     s21_decimal remainder;
-    //     s21_decimal tmpDiv;
-    //     div_only_bits(*chosen_numberPtr, ten, &remainder, &tmpDiv);
-
-    //     // обезопасимся от обнуления
-    //     s21_decimal zero = {{0, 0, 0, 0}};
-    //     if (zero_check(tmpDiv, zero) == 1) {
-    //         bits_copy(tmpDiv, chosen_numberPtr);
-    //     } else {
-    //         bits_copy(remainder, chosen_numberPtr);
-    //     }
-
-    //     set_scale(chosen_numberPtr, --chos_number_scale);
-    //     s21_mul(*chosen_numberPtr, *other_numberPtr, result);
-    // }
 
     if (bit_addition_result == INF)
         return_value = INF;
 
-    int scale = get_scale(&number_1) + get_scale(&number_2);
+    int scale = get_scale(&value_1) + get_scale(&value_2);
     set_scale(result, scale);
     set_sign(result, sign_result);
 
@@ -693,24 +661,18 @@ int zero_check(s21_decimal dec1, s21_decimal dec2) {
  */
 int s21_is_greater(s21_decimal dec1, s21_decimal dec2) {
     int is_greater = -1;
-    if (!zero_check(dec1, dec2))
+    if (zero_check(dec1, dec2))
         is_greater = FALSE;
 
-    // if (is_greater == -1) {
-    //     int who_is_inf = is_inf(&dec1, &dec2);
-    //     if (who_is_inf == 1) is_greater = TRUE;
-    //     if (who_is_inf == -1 || who_is_inf == 2) is_greater = FALSE;
-
-    //     int who_is_neg_inf = is_neg_inf(&dec1, &dec2);
-    //     if (who_is_neg_inf == -1) is_greater = TRUE;
-    //     if (who_is_neg_inf == 1 || who_is_inf == 2) is_greater = FALSE;
-    // }
+    if (is_greater == -1) {
+        if (get_sign(&dec1) && !get_sign(&dec2)) {
+            is_greater = FALSE;
+        } else if (!get_sign(&dec1) && get_sign(&dec2)) {
+            is_greater = TRUE;
+        }
+    }
 
     if (is_greater == -1) {
-        // int who_is_negative = is_negative(&dec1, &dec2);
-        // if (who_is_negative == 1) is_greater = TRUE;
-        // if (who_is_negative == -1) is_greater = FALSE;
-
         check_scale(&dec1, &dec2);
     }
 
@@ -719,11 +681,11 @@ int s21_is_greater(s21_decimal dec1, s21_decimal dec2) {
         int bit_dec2 = get_bit(dec2, i);
         if (bit_dec1 && !bit_dec2) is_greater = TRUE;
         if (bit_dec2 && !bit_dec1) is_greater = FALSE;
-
-        if (is_greater != -1) {
-            if (get_sign(&dec1) && get_sign(&dec2)) is_greater = !is_greater;
-        }
     }
+
+    if (get_sign(&dec1) && get_sign(&dec2)) is_greater = !is_greater;
+
+    if (is_greater == -1) is_greater = FALSE;
 
     return is_greater;
 }
@@ -1059,40 +1021,40 @@ void bits_copy(s21_decimal src, s21_decimal *dest) {
  * @param b число децимал
  * @param buf остаток от деления
  */
-void div_only_bits(s21_decimal number_1, s21_decimal number_2,
+void div_only_bits(s21_decimal value_1, s21_decimal value_2,
                           s21_decimal *buf, s21_decimal* result) {
     init_struct(buf);
-    for (int i = last_bit(number_1); i >= 0; i--) {
-        if (get_bit(number_1, i)) set_bit(buf, 0, 1);
-        if (s21_is_greater_or_equal(*buf, number_2) == TRUE) {
-            s21_sub(*buf, number_2, buf);
+    for (int i = last_bit(value_1); i >= 0; i--) {
+        if (get_bit(value_1, i)) set_bit(buf, 0, 1);
+        if (s21_is_greater_or_equal(*buf, value_2) == TRUE) {
+            s21_sub(*buf, value_2, buf);
             if (i != 0) offset_left(buf, 1);
-            if (get_bit(number_1, i - 1)) set_bit(buf, 0, 1);
+            if (get_bit(value_1, i - 1)) set_bit(buf, 0, 1);
             offset_left(result, 1);
             set_bit(result, 0, 1);
         } else {
             offset_left(result, 1);
             if (i != 0) offset_left(buf, 1);
-            if ((i - 1) >= 0 && get_bit(number_1, i - 1)) set_bit(buf, 0, 1);
+            if ((i - 1) >= 0 && get_bit(value_1, i - 1)) set_bit(buf, 0, 1);
         }
     }
 }
 
 // /**
 //  * @brief Функция взятия остатка от деления
-//  * @param number_1
-//  * @param number_2
+//  * @param value_1
+//  * @param value_2
 //  * @return s21_decimal
 //  */
-// s21_decimal s21_mod(s21_decimal number_1,
-//                     s21_decimal number_2) {  // нужны проверки
+// s21_decimal s21_mod(s21_decimal value_1,
+//                     s21_decimal value_2) {  // нужны проверки
 //     s21_decimal res;
 //     s21_decimal tmp;
 //     init_struct(&tmp);  //  на всякий случай
-//     tmp = s21_div(number_1, number_2);
+//     tmp = s21_div(value_1, value_2);
 //     tmp = s21_truncate(tmp);
-//     tmp = s21_mul(tmp, number_2);
-//     res = s21_sub(number_1, tmp);
+//     tmp = s21_mul(tmp, value_2);
+//     res = s21_sub(value_1, tmp);
 //     return res;
 // }
 
@@ -1101,28 +1063,28 @@ void div_only_bits(s21_decimal number_1, s21_decimal number_2,
 //  * @param a число децимал
 //  * @return число децимал
 //  */
-// s21_decimal s21_truncate(s21_decimal number_1) {
+// s21_decimal s21_truncate(s21_decimal value_1) {
 //     s21_decimal ten = {{10, 0, 0, 0}, s21_NORMAL_VALUE};
 //     s21_decimal res = {{0, 0, 0, 0}, 0};
 //     s21_decimal tmp = {{0, 0, 0, 0}, s21_NORMAL_VALUE};
 
-//     int sign_number_1 = get_sign(&number_1);
-//     int scale = get_scale(&number_1);
+//     int sign_value_1 = get_sign(&value_1);
+//     int scale = get_scale(&value_1);
 
-//     int valid_value = (number_1.value_type == s21_NORMAL_VALUE ? 1 : 0);
+//     int valid_value = (value_1.value_type == s21_NORMAL_VALUE ? 1 : 0);
 
 //     if (!scale && valid_value) {
-//         res = number_1;
+//         res = value_1;
 //     } else if (valid_value) {
 //         for (int i = scale; i > 0; i--) {
-//             res = div_only_bits(number_1, ten, &tmp);
-//             number_1 = res;
+//             res = div_only_bits(value_1, ten, &tmp);
+//             value_1 = res;
 //         }
 //     } else {
-//         res = number_1;
+//         res = value_1;
 //     }
 
-//     if (sign_number_1 && valid_value) set_sign(&res, 1);
+//     if (sign_value_1 && valid_value) set_sign(&res, 1);
 
 //     return res;
 // }
@@ -1225,31 +1187,10 @@ void clear_bits(s21_decimal *varPtr) {
 }
 
 // int main() {
-//     s21_decimal value_1;
-//     s21_decimal value_2;
-//     s21_decimal value_3;
-//     for (int i = 0; i < 4; i++) {
-//         value_1.bits[i] = 0;
-//         value_2.bits[i] = 0;
-//         value_3.bits[i] = 0;
-//     }
-//     value_1.bits[0] = 0xFFFFFFFF;
-//     value_1.bits[1] = 0xFFFFFFFF;
-//     value_1.bits[2] = 0xFFFFFFFF;
-//     value_2.bits[0] = 3u;
-//     set_scale(&value_2, 5);
-//     int return_value = s21_mul(value_1, value_2, &value_3);
-//     printf("return_value == %d\n", return_value);
-//     printf("value_3.bits[0] == %x\n", value_3.bits[0]);
-//     printf("value_3.bits[1] == %x\n", value_3.bits[1]);
-//     printf("value_3.bits[2] == %x\n", value_3.bits[2]);
-//     printf("value_3.bits[3] == %x\n", value_3.bits[3]);
-
-//     s21_decimal check = {{0xcedabe40, 0x99c0c5d, 0x13a3a, 0x80050000}};
-//     printf("s21_is_equal == %d\n", s21_is_equal(value_3, check));
-//     for (int i = 95; i >= 0; i--) {
-//         printf("%d", get_bit(value_3, i));
-//     }
-//     printf("\n");
+//     s21_decimal value_1 = {{123456u, 654u, 0xFFFFFFFF, 00000000u}};
+//     s21_decimal value_2 = {{123456u, 654u, 0xFFFFFFFF, 00000000u}};
+//     set_scale(&value_2, 2);
+//     int is_greater = s21_is_greater(value_1, value_2);
+//     printf("is greater == %d\n", is_greater);
 //     return 0;
 // }
