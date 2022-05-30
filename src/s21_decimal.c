@@ -148,3 +148,22 @@ int s21_is_greater(s21_decimal value_1, s21_decimal value_2) {
 int s21_is_less(s21_decimal dec1, s21_decimal dec2) {
   return s21_is_greater(dec2, dec1);
 }
+
+int s21_is_equal(s21_decimal value_1, s21_decimal value_2) {
+    int is_equal = TRUE;
+
+    if (value_1.bits[0] == 0 && value_2.bits[0] == 0 && value_1.bits[1] == 0 &&
+        value_2.bits[1] == 0 && value_1.bits[2] == 0 && value_2.bits[2] == 0) {
+        // is_equal = True
+    } else if (value_1.bits[0] != value_2.bits[0] ||
+               value_1.bits[1] != value_2.bits[1] ||
+               value_1.bits[2] != value_2.bits[2] ||
+               value_1.bits[3] != value_2.bits[3])
+        is_equal = FALSE;
+
+    return is_equal;
+}
+
+int s21_is_less_or_equal(s21_decimal value_1, s21_decimal value_2) {
+  return (s21_is_less(value_1, value_2) || s21_is_equal(value_1, value_2));
+}
