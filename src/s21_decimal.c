@@ -35,8 +35,8 @@ void set_bit(s21_decimal* value, int index, int set_value) {
         value->bits[element_number] & ~get_mask(index, 1);
 }
 
-int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
-  int return_value = s21_OK;
+s21_decimal s21_add_simple(s21_decimal value_1, s21_decimal value_2,
+                           int* return_value_int) {
   s21_decimal result = {{0, 0, 0, 0}, 0};
   int tmp = 0;  //тут будет 1 если мы складываем 1+1 бит и переносим 1 в
                 //следующий разряд
@@ -71,8 +71,17 @@ int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
       }
     }
     if (i == 95 && tmp)
-      return_value = s21_INF;  //дошли до последнего бита и остается лишний бит
-                               //= происхоит переполнение
+      return_value_int = 1;  //дошли до последнего бита и остается лишний бит
+                             //= происхоит переполнение
   }
-  return return_value;
+  return result;
 }
+
+int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
+  int return_value_int = 0;  //тут я что-то крышой поехала и мне кажется это
+                             //по-другому можно реализовать но пока так будет
+  //не дает внутри функкции просто инф присваивать инту*
+  int return_value = s21_OK;
+}
+
+//надо написать функцию которая приводить к одной шкале и к одному знаку
