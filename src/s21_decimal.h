@@ -19,7 +19,8 @@ typedef struct {
 } s21_decimal;
 
 typedef struct {
-    unsigned int bits[512];
+    // int sign_and_scale;
+    unsigned int bits[12];
 } super_s21_decimal;
 
 int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
@@ -53,12 +54,13 @@ int last_bit(s21_decimal number);
 void bits_copy(s21_decimal src, s21_decimal *dest);
 void convert_to_addcode(s21_decimal *number_1);
 void set_scale(s21_decimal *varPtr, int scale);
-int offset_left(s21_decimal *varPtr, int value_offset);
+void super_offset_left(super_s21_decimal *varPtr, int value_offset);
 void init_struct(s21_decimal *varPtr);
 void set_bit(s21_decimal *varPtr, int bit, int value);
 void set_sign(s21_decimal *varPtr, int sign);
 void clear_bits(s21_decimal *varPtr);
-int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal* result, int offset_left_result);
+void super_clear_bits(super_s21_decimal *varPtr);
+void super_bit_addition(super_s21_decimal var1, super_s21_decimal var2, super_s21_decimal* result);
 void div_only_bits(s21_decimal a, s21_decimal b, s21_decimal *buf,
                           s21_decimal *result);
 s21_decimal check_for_mul(s21_decimal number_1, s21_decimal number_2);
