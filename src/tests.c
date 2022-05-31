@@ -5,22 +5,6 @@
 
 #include "s21_decimal.h"
 
-s21_decimal case_max = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0}};
-s21_decimal case_min = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0x80000000}};
-s21_decimal case1 = {{0, 0, 0, 0}};
-s21_decimal case2 = {{1, 0, 0, 0}};
-s21_decimal case3 = {{0x7FFFFFFF, 0, 0, 0}};
-s21_decimal case4 = {{0x7FFFFFFF, 0, 0, 0x80000000}};
-s21_decimal case5 = {{0x80000000, 0, 0, 0x90000}};
-s21_decimal case6 = {{755, 0, 0, 0x10000}};
-s21_decimal case7 = {{75, 0, 0, 0}};
-s21_decimal case8 = {{7551, 0, 0, 0x80020000}};
-s21_decimal case9 = {{76, 0, 0, 0x80000000}};
-s21_decimal case10 = {{755, 0, 0, 0}};
-s21_decimal case11 = {{5, 0, 0, 0}};
-s21_decimal case12 = {{150, 0, 0, 0x80000000}};
-s21_decimal case13 = {{2, 0, 0, 0x80000000}};
-
 START_TEST(s21_mul_1) {
     s21_decimal value_1 = {{5, 0, 0, 0}};
     s21_decimal value_2 = {{7, 0, 0, 0}};
