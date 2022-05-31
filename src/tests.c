@@ -53,7 +53,16 @@ END_TEST
 START_TEST(s21_is_greater_6) {
     s21_decimal value_1 = {{123456u, 654u, 0xFFFFFFFF, 0}};
     s21_decimal value_2 = {{123456u, 654u, 0xFFFFFFFF, 0}};
-    set_scale(&value_2, 2);
+    set_scale(&value_2, 10);
+    int return_value = s21_is_greater(value_1, value_2);
+    ck_assert_int_eq(return_value, TRUE);
+}
+END_TEST
+
+START_TEST(s21_is_greater_7) {
+    s21_decimal value_1 = {{234, 0, 0, 0}};
+    s21_decimal value_2 = {{2, 0, 0, 0}};
+    set_scale(&value_1, 2);
     int return_value = s21_is_greater(value_1, value_2);
     ck_assert_int_eq(return_value, TRUE);
 }
@@ -95,6 +104,11 @@ Suite *lib_suite(void) {
     tc_is_greater_6 = tcase_create("s21_is_greater_6");
     suite_add_tcase(s, tc_is_greater_6);
     tcase_add_test(tc_is_greater_6, s21_is_greater_6);
+
+    TCase *tc_is_greater_7;
+    tc_is_greater_7 = tcase_create("s21_is_greater_7");
+    suite_add_tcase(s, tc_is_greater_7);
+    tcase_add_test(tc_is_greater_7, s21_is_greater_7);
 
 
 
