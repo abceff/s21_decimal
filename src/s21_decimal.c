@@ -113,6 +113,7 @@ int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal* result) {
 }
 
 int s21_mul(s21_decimal number_1, s21_decimal number_2, s21_decimal* result) {
+    clear_bits(result);
     int return_value = OK;
     int sign_result;
 
