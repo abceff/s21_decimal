@@ -57,6 +57,8 @@ void clear_bits(s21_decimal *varPtr);
 int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal* result);
 void div_only_bits(s21_decimal a, s21_decimal b, s21_decimal *buf,
                           s21_decimal *result);
+void sub_only_bits(s21_decimal number_1, s21_decimal number_2, s21_decimal* result);
+void add_only_bits(s21_decimal number_1, s21_decimal number_2, s21_decimal* result);
 s21_decimal check_for_mul(s21_decimal number_1, s21_decimal number_2);
 s21_decimal check_for_add(s21_decimal number_1, s21_decimal number_2);
 
