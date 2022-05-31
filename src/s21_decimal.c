@@ -113,6 +113,7 @@ int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal *result) {
 }
 
 int s21_mul(s21_decimal number_1, s21_decimal number_2, s21_decimal *result) {
+    clear_bits(result);
     int return_value = OK;
     int sign_result;
 
@@ -186,6 +187,64 @@ int zero_check(s21_decimal dec1, s21_decimal dec2) {
     return is_zero;
 }
 
+void mul_only_bits(s21_decimal value_1, s21_decimal value_2,
+                   s21_decimal *result) {
+    clear_bits(result);
+    s21_decimal tmp_res;
+    int last_bit_1 = last_bit(value_1);
+    for (int i = 0; i <= last_bit_1; i++) {
+        clear_bits(&tmp_res);
+        int value_bit_1 = get_bit(value_1, i);
+
+        if (value_bit_1) {
+            tmp_res = value_2;
+            offset_left(&tmp_res, i);
+            bit_addition(*result, tmp_res, result);
+        }
+    }
+}
+
+void offset_right(s21_decimal *varPtr, int value_offset) {
+    for (int i = 0; i < value_offset; i++) {
+        int value_32bit = get_bit(*varPtr, 32);
+        int value_64bit = get_bit(*varPtr, 64);
+        varPtr->bits[0] >>= 1;
+        varPtr->bits[1] >>= 1;
+        varPtr->bits[2] >>= 1;
+        if (value_32bit) set_bit(varPtr, 31, 1);
+        if (value_64bit) set_bit(varPtr, 63, 1);
+    }
+}
+
+void scale_equalize(s21_decimal *value_1, s21_decimal *value_2) {
+    s21_decimal ten = {{10u, 0, 0, 0}};
+    if (get_scale(value_1) < get_scale(value_2)) {
+        int difference = get_scale(value_2) - get_scale(value_1);
+        if (get_bit(*value_1, 93) == 0 && get_bit(*value_1, 94) == 0 &&
+            get_bit(*value_1, 95) == 0) {
+            for (int i = 0; i < difference; i++) {
+                mul_only_bits(*value_1, ten, value_1);
+            }
+            set_scale(value_1, get_scale(value_2));
+        } else {
+            offset_right(value_2, difference);
+            set_scale(value_2, get_scale(value_1));
+        }
+    } else {
+        int difference = get_scale(value_1) - get_scale(value_2);
+        if (get_bit(*value_2, 93) == 0 && get_bit(*value_2, 94) == 0 &&
+            get_bit(*value_2, 95) == 0) {
+            for (int i = 0; i < difference; i++) {
+                mul_only_bits(*value_2, ten, value_2);
+            }
+            set_scale(value_2, get_scale(value_2));
+        } else {
+            offset_right(value_1, difference);
+            set_scale(value_1, get_scale(value_2));
+        }
+    }
+}
+
 int s21_is_greater(s21_decimal value_1, s21_decimal value_2) {
     int res;
     if (zero_check(value_1, value_2)) {
@@ -195,26 +254,23 @@ int s21_is_greater(s21_decimal value_1, s21_decimal value_2) {
     } else if (get_sign(&value_1) < get_sign(&value_2)) {
         res = TRUE;
     } else {
-        if (get_scale(&value_1) < get_scale(&value_2)) {
+        if (get_scale(&value_1) != get_scale(&value_2)) {
+            scale_equalize(&value_1, &value_2);
+        }
+        if (value_1.bits[2] > value_2.bits[2]) {
             res = TRUE;
-        } else if (get_scale(&value_1) > get_scale(&value_2)) {
+        } else if (value_1.bits[2] < value_2.bits[2]) {
             res = FALSE;
         } else {
-            if (value_1.bits[2] > value_2.bits[2]) {
+            if (value_1.bits[1] > value_2.bits[1]) {
                 res = TRUE;
-            } else if (value_1.bits[2] < value_2.bits[2]) {
+            } else if (value_1.bits[1] < value_2.bits[1]) {
                 res = FALSE;
             } else {
-                if (value_1.bits[1] > value_2.bits[1]) {
+                if (value_1.bits[0] > value_2.bits[0]) {
                     res = TRUE;
-                } else if (value_1.bits[1] < value_2.bits[1]) {
-                    res = FALSE;
                 } else {
-                    if (value_1.bits[0] > value_2.bits[0]) {
-                        res = TRUE;
-                    } else {
-                        res = FALSE;
-                    }
+                    res = FALSE;
                 }
             }
         }
@@ -233,7 +289,8 @@ int s21_is_less(s21_decimal dec1, s21_decimal dec2) {
     return s21_is_greater(dec2, dec1);
 }
 
-void sub_only_bits(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
+void sub_only_bits(s21_decimal value_1, s21_decimal value_2,
+                   s21_decimal *result) {
     clear_bits(result);
 
     // знаки одинаковые - ситуация вырождается в -+ или +-
@@ -280,24 +337,24 @@ void sub_only_bits(s21_decimal value_1, s21_decimal value_2, s21_decimal* result
         }
     }
 }
-                               // 210                // 210
-                               // 100                // 010
-void div_only_bits(s21_decimal number_1, s21_decimal number_2,
-                          s21_decimal *buf, s21_decimal* result) {
+// 210                // 210
+// 100                // 010
+void div_only_bits(s21_decimal number_1, s21_decimal number_2, s21_decimal *buf,
+                   s21_decimal *result) {
     clear_bits(buf);
     clear_bits(result);
-                 // 2
-    for (int i = last_bit(number_1); i >= 0; i--) {  // i = 1
+    // 2
+    for (int i = last_bit(number_1); i >= 0; i--) {    // i = 1
         if (get_bit(number_1, i)) set_bit(buf, 0, 1);  // buf == 010
         if (s21_is_greater_or_equal(*buf, number_2) == TRUE) {  // Прыгаем сюда
-                        // 010  // 010
+                                                                // 010  // 010
             sub_only_bits(*buf, number_2, buf);
             if (i != 0) offset_left(buf, 1);
             if (get_bit(number_1, i - 1)) set_bit(buf, 0, 1);
             offset_left(result, 1);
             set_bit(result, 0, 1);
-        } else {  
-            offset_left(result, 1);  // result == 000
+        } else {
+            offset_left(result, 1);           // result == 000
             if (i != 0) offset_left(buf, 1);  // buf == 010
             if ((i - 1) >= 0 && get_bit(number_1, i - 1)) set_bit(buf, 0, 1);
         }
@@ -321,7 +378,7 @@ int s21_div(s21_decimal divident, s21_decimal divisor, s21_decimal *result) {
         return_value = DIVISION_BY_ZERO;
         clear_bits(result);
 
-    } else {  // Прыгаем слюда
+    } else {
         int beginScale = get_scale(&divident) - get_scale(&divisor);
         int resultSign = get_sign(&divident) != get_sign(&divisor);
 
@@ -334,7 +391,7 @@ int s21_div(s21_decimal divident, s21_decimal divisor, s21_decimal *result) {
         set_sign(&divident, 0);
 
         // первое целочисленное деление
-                      // 100    // 10
+        // 100    // 10
         div_only_bits(divident, divisor, &remainder, &tmp);
         bits_copy(tmp, result);
 
@@ -352,10 +409,12 @@ int s21_div(s21_decimal divident, s21_decimal divisor, s21_decimal *result) {
             if (s21_is_less(*result, border_value) == FALSE) {
                 break;
             }
+            printf("remainder do == %d\n", remainder.bits[0]);
             s21_mul(remainder, ten, &remainder);
+            printf("remainder posle == %d\n", remainder.bits[0]);
             div_only_bits(remainder, divisor, &remainder, &tmp);
             s21_mul(*result, ten, result);
-            add_only_bits(*result, tmp, result);
+            bit_addition(*result, tmp, result);
             inside_scale++;
         }
 
@@ -389,12 +448,11 @@ int main() {
         value_3.bits[i] = 0;
         // remainder.bits[i] = 0;
     }
-    value_1.bits[0] = 1000u;
+    value_1.bits[0] = 3u;
     value_1.bits[1] = 0;
     value_1.bits[2] = 0;
-    value_2.bits[0] = 500u;
-    sub_only_bits(value_1, value_2, &value_3);
-    // printf("return_value == %d\n", return_value);
+    value_2.bits[0] = 2u;
+    s21_div(value_1, value_2, &value_3);
     printf("value_3.bits[0] == %u\n", value_3.bits[0]);
     printf("value_3.bits[1] == %u\n", value_3.bits[1]);
     printf("value_3.bits[2] == %u\n", value_3.bits[2]);
@@ -405,3 +463,29 @@ int main() {
 
     return 0;
 }
+
+// int main() {
+//     s21_decimal value_1;
+//     s21_decimal value_2;
+//     s21_decimal value_3;
+//     // s21_decimal remainder;
+//     for (int i = 0; i < 4; i++) {
+//         value_1.bits[i] = 0;
+//         value_2.bits[i] = 0;
+//         value_3.bits[i] = 0;
+//     }
+//     value_1.bits[0] = 1;
+
+//     value_2.bits[0] = 10;
+//     // value_2.bits[1] = 0xFFFFFFFF;
+//     // value_2.bits[2] = 0xFFFFFFFF;
+//     // set_scale(&value_1, 1);
+
+//     s21_mul(value_1, value_2, &value_3);
+//     printf("value_3.bits[0] == %u\n", value_3.bits[0]);
+//     printf("value_3.bits[1] == %u\n", value_3.bits[1]);
+//     printf("value_3.bits[2] == %u\n", value_3.bits[2]);
+//     printf("value_3.bits[3] == %u\n", value_3.bits[3]);
+
+//     return 0;
+// }
