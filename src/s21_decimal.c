@@ -405,17 +405,23 @@ int s21_div(s21_decimal divident, s21_decimal divisor, s21_decimal *result) {
         // делим, пока не достигнем максимальной точности или пока не поделим
         // без остатка
 
+        for (int i = 95; i >= 0; i--) {
+            printf("%d", get_bit(*result, i));
+        }
+        printf("\n");
         for (; inside_scale <= 27 && s21_is_equal(remainder, zero) == FALSE;) {
             if (s21_is_less(*result, border_value) == FALSE) {
                 break;
             }
-            printf("remainder do == %d\n", remainder.bits[0]);
             s21_mul(remainder, ten, &remainder);
-            printf("remainder posle == %d\n", remainder.bits[0]);
             div_only_bits(remainder, divisor, &remainder, &tmp);
             s21_mul(*result, ten, result);
             bit_addition(*result, tmp, result);
             inside_scale++;
+            for (int i = 95; i >= 0; i--) {
+                printf("%d", get_bit(*result, i));
+            }
+            printf("\n");
         }
 
         s21_decimal musor;
@@ -437,33 +443,6 @@ int s21_div(s21_decimal divident, s21_decimal divisor, s21_decimal *result) {
     return return_value;
 }
 
-int main() {
-    s21_decimal value_1;
-    s21_decimal value_2;
-    s21_decimal value_3;
-    // s21_decimal remainder;
-    for (int i = 0; i < 4; i++) {
-        value_1.bits[i] = 0;
-        value_2.bits[i] = 0;
-        value_3.bits[i] = 0;
-        // remainder.bits[i] = 0;
-    }
-    value_1.bits[0] = 3u;
-    value_1.bits[1] = 0;
-    value_1.bits[2] = 0;
-    value_2.bits[0] = 2u;
-    s21_div(value_1, value_2, &value_3);
-    printf("value_3.bits[0] == %u\n", value_3.bits[0]);
-    printf("value_3.bits[1] == %u\n", value_3.bits[1]);
-    printf("value_3.bits[2] == %u\n", value_3.bits[2]);
-    printf("value_3.bits[3] == %u\n", value_3.bits[3]);
-    for (int i = 95; i >= 0; i--) {
-        printf("%d", get_bit(value_3, i));
-    }
-
-    return 0;
-}
-
 // int main() {
 //     s21_decimal value_1;
 //     s21_decimal value_2;
@@ -473,19 +452,21 @@ int main() {
 //         value_1.bits[i] = 0;
 //         value_2.bits[i] = 0;
 //         value_3.bits[i] = 0;
+//         // remainder.bits[i] = 0;
 //     }
-//     value_1.bits[0] = 1;
-
-//     value_2.bits[0] = 10;
-//     // value_2.bits[1] = 0xFFFFFFFF;
-//     // value_2.bits[2] = 0xFFFFFFFF;
-//     // set_scale(&value_1, 1);
-
-//     s21_mul(value_1, value_2, &value_3);
+//     value_1.bits[0] = 10;
+//     value_1.bits[1] = 0;
+//     value_1.bits[2] = 0;
+//     value_2.bits[0] = 1;
+//     set_scale(&value_2, 2);
+//     s21_div(value_1, value_2, &value_3);
 //     printf("value_3.bits[0] == %u\n", value_3.bits[0]);
-//     printf("value_3.bits[1] == %u\n", value_3.bits[1]);
-//     printf("value_3.bits[2] == %u\n", value_3.bits[2]);
-//     printf("value_3.bits[3] == %u\n", value_3.bits[3]);
+//     printf("value_3.bits[1] == %x\n", value_3.bits[1]);
+//     printf("value_3.bits[2] == %x\n", value_3.bits[2]);
+//     printf("value_3.bits[3] == %x\n", value_3.bits[3]);
+//     for (int i = 95; i >= 0; i--) {
+//         printf("%d", get_bit(value_3, i));
+//     }
 
 //     return 0;
 // }
