@@ -47,96 +47,23 @@ void set_scale(s21_decimal *varPtr, int scale) {
     }
 }
 
-int super_get_bit(const super_s21_decimal decVar, int bit) {
-    int res = 0;
-    unsigned int mask = 1u << (bit % 32);
-    res = decVar.bits[bit / 32] & mask;
-    return !!res;
-}
-
-void super_set_bit(super_s21_decimal *varPtr, int bit, int value) {
-    unsigned int mask = 1u << (bit % 32);
-    if (value) {
-        varPtr->bits[bit / 32] |= mask;
-    } else if (!value) {
-        varPtr->bits[bit / 32] &= ~mask;
+int offset_left(s21_decimal *varPtr, int value_offset) {
+    int return_value = OK;
+    int lastbit = last_bit(*varPtr);
+    if (lastbit + value_offset > 95) {
+        return_value = INF;
+    } else {
+        for (int i = 0; i < value_offset; i++) {
+            int value_31bit = get_bit(*varPtr, 31);
+            int value_63bit = get_bit(*varPtr, 63);
+            varPtr->bits[0] <<= 1;
+            varPtr->bits[1] <<= 1;
+            varPtr->bits[2] <<= 1;
+            if (value_31bit) set_bit(varPtr, 32, 1);
+            if (value_63bit) set_bit(varPtr, 64, 1);
+        }
     }
-}
-
-void super_offset_left(super_s21_decimal *varPtr, int value_offset) {
-    for (int i = 0; i < value_offset; i++) {
-        int value_31bit = super_get_bit(*varPtr, 31);
-        int value_63bit = super_get_bit(*varPtr, 63);
-        int value_95bit = super_get_bit(*varPtr, 95);
-        int value_127bit = super_get_bit(*varPtr, 127);
-        int value_159bit = super_get_bit(*varPtr, 159);
-        int value_191bit = super_get_bit(*varPtr, 191);
-        int value_223bit = super_get_bit(*varPtr, 223);
-        int value_255bit = super_get_bit(*varPtr, 255);
-        int value_287bit = super_get_bit(*varPtr, 287);
-        int value_319bit = super_get_bit(*varPtr, 319);
-        int value_351bit = super_get_bit(*varPtr, 351);
-        varPtr->bits[0] <<= 1;
-        varPtr->bits[1] <<= 1;
-        varPtr->bits[3] <<= 1;
-        varPtr->bits[4] <<= 1;
-        varPtr->bits[5] <<= 1;
-        varPtr->bits[6] <<= 1;
-        varPtr->bits[7] <<= 1;
-        varPtr->bits[8] <<= 1;
-        varPtr->bits[9] <<= 1;
-        varPtr->bits[10] <<= 1;
-        varPtr->bits[11] <<= 1;
-        if (value_31bit) super_set_bit(varPtr, 32, 1);
-        if (value_63bit) super_set_bit(varPtr, 64, 1);
-        if (value_95bit) super_set_bit(varPtr, 96, 1);
-        if (value_127bit) super_set_bit(varPtr, 128, 1);
-        if (value_159bit) super_set_bit(varPtr, 160, 1);
-        if (value_191bit) super_set_bit(varPtr, 192, 1);
-        if (value_223bit) super_set_bit(varPtr, 224, 1);
-        if (value_255bit) super_set_bit(varPtr, 256, 1);
-        if (value_287bit) super_set_bit(varPtr, 288, 1);
-        if (value_319bit) super_set_bit(varPtr, 320, 1);
-        if (value_351bit) super_set_bit(varPtr, 352, 1);
-    }
-}
-
-void super_offset_right(super_s21_decimal *varPtr, int value_offset) {
-    for (int i = 0; i < value_offset; i++) {
-        int value_32bit = super_get_bit(*varPtr, 32);
-        int value_64bit = super_get_bit(*varPtr, 64);
-        int value_96bit = super_get_bit(*varPtr, 96);
-        int value_128bit = super_get_bit(*varPtr, 128);
-        int value_160bit = super_get_bit(*varPtr, 160);
-        int value_192bit = super_get_bit(*varPtr, 192);
-        int value_224bit = super_get_bit(*varPtr, 224);
-        int value_256bit = super_get_bit(*varPtr, 256);
-        int value_288bit = super_get_bit(*varPtr, 288);
-        int value_320bit = super_get_bit(*varPtr, 320);
-        int value_352bit = super_get_bit(*varPtr, 352);
-        varPtr->bits[0] <<= 1;
-        varPtr->bits[1] <<= 1;
-        varPtr->bits[3] <<= 1;
-        varPtr->bits[4] <<= 1;
-        varPtr->bits[5] <<= 1;
-        varPtr->bits[6] <<= 1;
-        varPtr->bits[7] <<= 1;
-        varPtr->bits[8] <<= 1;
-        varPtr->bits[9] <<= 1;
-        varPtr->bits[10] <<= 1;
-        varPtr->bits[11] <<= 1;
-        if (value_32bit) super_set_bit(varPtr, 31, 1);
-        if (value_64bit) super_set_bit(varPtr, 63, 1);
-        if (value_96bit) super_set_bit(varPtr, 95, 1);
-        if (value_128bit) super_set_bit(varPtr, 127, 1);
-        if (value_160bit) super_set_bit(varPtr, 159, 1);
-        if (value_192bit) super_set_bit(varPtr, 191, 1);
-        if (value_224bit) super_set_bit(varPtr, 223, 1);
-        if (value_256bit) super_set_bit(varPtr, 255, 1);
-        if (value_288bit) super_set_bit(varPtr, 287, 1);
-        if (value_320bit) super_set_bit(varPtr, 319, 1);
-        if (value_352bit) super_set_bit(varPtr, 351, 1);
-    }
+    return return_value;
 }
 
 int last_bit(s21_decimal number) {
@@ -146,98 +73,81 @@ int last_bit(s21_decimal number) {
     return last_bit;
 }
 
-int super_last_bit(super_s21_decimal number) {
-    int last_bit = 383;
-    for (; last_bit >= 0 && super_get_bit(number, last_bit) == 0; last_bit--) {
-    }
-    return last_bit;
-}
-
-void super_bit_addition(super_s21_decimal var1, super_s21_decimal var2, super_s21_decimal* result) {
+int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal* result) {
+    int return_value = OK;
+    // s21_decimal res = {0, 0, 0, 0};
     int buffer = 0;
 
-    for (int i = 0; i < 384; i++) {
-        int cur_bit_of_var1 = super_get_bit(var1, i);
-        int cur_bit_of_var2 = super_get_bit(var2, i);
+    for (int i = 0; i < 96; i++) {
+        int cur_bit_of_var1 = get_bit(var1, i);
+        int cur_bit_of_var2 = get_bit(var2, i);
 
         if (!cur_bit_of_var1 && !cur_bit_of_var2) {  // оба бита выключены
             if (buffer) {
-                super_set_bit(result, i, 1);
+                set_bit(result, i, 1);
                 buffer = 0;
             } else {
-                super_set_bit(result, i, 0);
+                set_bit(result, i, 0);
             }
         } else if (cur_bit_of_var1 != cur_bit_of_var2) {
             if (buffer) {
-                super_set_bit(result, i, 0);
+                set_bit(result, i, 0);
                 buffer = 1;
             } else {
-                super_set_bit(result, i, 1);
+                set_bit(result, i, 1);
             }
         } else {  // оба бита включены
             if (buffer) {
-                super_set_bit(result, i, 1);
+                set_bit(result, i, 1);
                 buffer = 1;
             } else {
-                super_set_bit(result, i, 0);
+                set_bit(result, i, 0);
                 buffer = 1;
             }
         }
+        if (i == 95 && buffer == 1)
+            return_value = INF;  // переполнение нужно вывести инфинити
     }
+
+    return return_value;
 }
 
-void from_super_decimal_to_decimal(super_s21_decimal super_decimal, s21_decimal* decimal){
-    for (int i = 0; i < 4; i++) {
-        decimal->bits[i] = super_decimal.bits[i];
-    }
-}
-
-/**
- * @brief функция умножение двух чисел децимал
- * @param value_1
- * @param value_2
- * @return s21_decimal
- */
-int s21_mul(s21_decimal value_1, s21_decimal value_2, s21_decimal* result) {
+int s21_mul(s21_decimal number_1, s21_decimal number_2, s21_decimal* result) {
     int return_value = OK;
     int sign_result;
 
-    if (get_sign(&value_1) != get_sign(&value_2)) {
+    if (get_sign(&number_1) != get_sign(&number_2)) {
         sign_result = 1;
     } else {
         sign_result = 0;
     }
 
-    int last_bit_1 = last_bit(value_1);  // Находим последнюю единицу справа налево
-    super_s21_decimal super_tmp_res;
+    int last_bit_1 = last_bit(number_1);  // Находим последнюю единицу справа налево
+    s21_decimal tmp_res = {{0, 0, 0, 0}};
 
-    super_s21_decimal super_result = {0};
-
+    int bit_addition_result = OK;
     // само умножение
     for (int i = 0; i <= last_bit_1; i++) {
 
-        super_clear_bits(&super_tmp_res);
-        int value_bit_1 = get_bit(value_1, i);
+        clear_bits(&tmp_res);
+        int value_bit_1 = get_bit(number_1, i);
 
         if (value_bit_1) {
-            for (int j = 0; j < 4; j++)
-                super_tmp_res.bits[j] = value_2.bits[j];
-            super_offset_left(&super_tmp_res, i);
-            super_bit_addition(super_result, super_tmp_res, &super_result);
+            tmp_res = number_2;
+            bit_addition_result = offset_left(&tmp_res, i);
+            bit_addition_result = bit_addition(*result, tmp_res, result);
         }
     }
 
-    int super_scale = get_scale(&value_1) + get_scale(&value_2);
-    int super_result_last_bit = super_last_bit(super_result);
-
-    // Если после умножения позиция последнего бита больше 95
-    if (super_result_last_bit > 95) {
-        return_value = INF;
+    if (bit_addition_result == INF) {
+        if (sign_result)
+            return_value = NEGATIVE_INF;
+        else
+            return_value = INF;
         clear_bits(result);
     } else {
-        from_super_decimal_to_decimal(super_result, result);
-
-        set_scale(result, super_scale);
+        int scale = get_scale(&number_1) + get_scale(&number_2);
+        set_scale(result, scale);
         set_sign(result, sign_result);
     }
 
@@ -248,15 +158,47 @@ void clear_bits(s21_decimal *varPtr) {
     memset(varPtr->bits, 0, sizeof(varPtr->bits));
 }
 
-void super_clear_bits(super_s21_decimal *varPtr) {
-    memset(varPtr->bits, 0, sizeof(varPtr->bits));
+int s21_is_equal(s21_decimal value_1, s21_decimal value_2) {
+    int is_equal = TRUE;
+
+    if (value_1.bits[0] == 0 && value_2.bits[0] == 0 && value_1.bits[1] == 0 &&
+        value_2.bits[1] == 0 && value_1.bits[2] == 0 && value_2.bits[2] == 0) {
+        // is_equal = True
+    } else if (value_1.bits[0] != value_2.bits[0] ||
+               value_1.bits[1] != value_2.bits[1] ||
+               value_1.bits[2] != value_2.bits[2] ||
+               value_1.bits[3] != value_2.bits[3])
+        is_equal = FALSE;
+
+    return is_equal;
 }
 
-int main() {
-    s21_decimal value_1 = {{2u, 0u, 0u, 0u}};
-    s21_decimal value_2 = {{3u, 0u, 0u, 0u}};
-    s21_decimal result = {{0u, 0u, 0u, 0u}};
-    s21_mul(value_1, value_2, &result);
-    printf("result.bits[0] == %d\n", result.bits[0]);
-    return 0;
-}
+// int main() {
+//     s21_decimal value_1;
+//     s21_decimal value_2;
+//     s21_decimal value_3;
+//     for (int i = 0; i < 4; i++) {
+//         value_1.bits[i] = 0;
+//         value_2.bits[i] = 0;
+//         value_3.bits[i] = 0;
+//     }
+//     value_1.bits[0] = 0xFFFFFFFF;
+//     value_1.bits[1] = 0xFFFFFFFF;
+//     value_1.bits[2] = 0xFFFFFFFF;
+//     value_2.bits[0] = 3u;
+//     set_scale(&value_2, 5);
+//     int return_value = s21_mul(value_1, value_2, &value_3);
+//     printf("return_value == %d\n", return_value);
+//     printf("value_3.bits[0] == %x\n", value_3.bits[0]);
+//     printf("value_3.bits[1] == %x\n", value_3.bits[1]);
+//     printf("value_3.bits[2] == %x\n", value_3.bits[2]);
+//     printf("value_3.bits[3] == %x\n", value_3.bits[3]);
+
+//     s21_decimal check = {{0xcedabe40, 0x99c0c5d, 0x13a3a, 0x80050000}};
+//     printf("s21_is_equal == %d\n", s21_is_equal(value_3, check));
+//     for (int i = 95; i >= 0; i--) {
+//         printf("%d", get_bit(value_3, i));
+//     }
+//     printf("\n");
+//     return 0;
+// }

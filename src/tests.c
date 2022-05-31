@@ -68,6 +68,18 @@ START_TEST(s21_mul_4) {
 }
 END_TEST
 
+START_TEST(s21_mul_5) {
+    s21_decimal value_1 = {{0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0}};
+    s21_decimal value_2 = {{2, 0, 0, 0}};
+    set_sign(&value_2, 1);
+    s21_decimal result = {{0, 0, 0, 0}};
+    s21_decimal check = {{0, 0, 0, 0}};
+    int return_value = s21_mul(value_1, value_2, &result);
+    ck_assert_int_eq(s21_is_equal(result, check), 1);
+    ck_assert_int_eq(return_value, NEGATIVE_INF);
+}
+END_TEST
+
 Suite *lib_suite(void) {
     Suite *s;
     s = suite_create("Check");
@@ -81,17 +93,22 @@ Suite *lib_suite(void) {
     TCase *tc_mul_2;
     tc_mul_2 = tcase_create("s21_mul_2");
     suite_add_tcase(s, tc_mul_2);
-    tcase_add_test(tc_mul_1, s21_mul_2);
+    tcase_add_test(tc_mul_2, s21_mul_2);
 
     TCase *tc_mul_3;
     tc_mul_3 = tcase_create("s21_mul_3");
     suite_add_tcase(s, tc_mul_3);
-    tcase_add_test(tc_mul_1, s21_mul_3);
+    tcase_add_test(tc_mul_3, s21_mul_3);
 
     TCase *tc_mul_4;
     tc_mul_4 = tcase_create("s21_mul_4");
     suite_add_tcase(s, tc_mul_4);
-    tcase_add_test(tc_mul_1, s21_mul_4);
+    tcase_add_test(tc_mul_4, s21_mul_4);
+
+    TCase *tc_mul_5;
+    tc_mul_5 = tcase_create("s21_mul_5");
+    suite_add_tcase(s, tc_mul_5);
+    tcase_add_test(tc_mul_5, s21_mul_5);
 
     return s;
 }
