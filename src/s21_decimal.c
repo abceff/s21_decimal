@@ -342,6 +342,13 @@ int zero_check(s21_decimal dec1, s21_decimal dec2) {
     return is_zero;
 }
 
+void minus_scale(s21_decimal* a) {
+    s21_decimal ten = {{10, 0, 0, 0}};
+    if (last_bit(*a) < 32 && a->bits[0] < 10) a->bits[0] = 0;
+    s21_decimal musor;
+    div_only_bits(*a, ten, &musor, a);
+}
+
 void mul_only_bits(s21_decimal value_1, s21_decimal value_2,
                    s21_decimal *result) {
     clear_bits(result);
@@ -375,26 +382,30 @@ void scale_equalize(s21_decimal *value_1, s21_decimal *value_2) {
     s21_decimal ten = {{10u, 0, 0, 0}};
     if (get_scale(value_1) < get_scale(value_2)) {
         int difference = get_scale(value_2) - get_scale(value_1);
-        if (get_bit(*value_1, 93) == 0 && get_bit(*value_1, 94) == 0 &&
-            get_bit(*value_1, 95) == 0) {
+        if (get_bit(*value_2, 93) == 0 && get_bit(*value_2, 94) == 0 &&
+            get_bit(*value_2, 95) == 0) {
             for (int i = 0; i < difference; i++) {
                 mul_only_bits(*value_1, ten, value_1);
             }
             set_scale(value_1, get_scale(value_2));
         } else {
-            offset_right(value_2, difference);
+            for (int i = 0; i < difference; i++) {
+                minus_scale(value_2);
+            }
             set_scale(value_2, get_scale(value_1));
         }
     } else {
         int difference = get_scale(value_1) - get_scale(value_2);
-        if (get_bit(*value_2, 93) == 0 && get_bit(*value_2, 94) == 0 &&
-            get_bit(*value_2, 95) == 0) {
+        if (get_bit(*value_1, 93) == 0 && get_bit(*value_1, 94) == 0 &&
+            get_bit(*value_1, 95) == 0) {
             for (int i = 0; i < difference; i++) {
                 mul_only_bits(*value_2, ten, value_2);
             }
-            set_scale(value_2, get_scale(value_2));
+            set_scale(value_2, get_scale(value_1));
         } else {
-            offset_right(value_1, difference);
+            for (int i = 0; i < difference; i++) {
+                minus_scale(value_1);
+            }
             set_scale(value_1, get_scale(value_2));
         }
     }
@@ -572,9 +583,7 @@ int s21_mod(s21_decimal number_1, s21_decimal number_2,
         // оба числа положительные
         if (!get_sign(&number_1) && !get_sign(&number_2)) {
             while (s21_is_greater_or_equal(number_1, number_2)) {
-                printf("number_1 do == %u\n", number_1.bits[0]);
                 s21_sub(number_1, number_2, &number_1);
-                printf("number_1 posle == %u\n", number_1.bits[0]);
             }
         // первое число положительное, второе отрицательное
         } else if (!get_sign(&number_1) && get_sign(&number_2)) {
@@ -610,15 +619,11 @@ int main() {
         value_2.bits[i] = 0;
         result.bits[i] = 0;
     }
-    value_1.bits[0] = 45;
+    value_1.bits[0] = 46;
     set_scale(&value_1, 1);
-    value_2.bits[0] = 3;
-    s21_sub(value_1, value_2, &result);
-    // printf("value_1.bits[0] == %u\n", value_1.bits[0]);
-    // printf("value_1.bits[1] == %x\n", value_1.bits[1]);
-    // printf("value_1.bits[2] == %x\n", value_1.bits[2]);
-    // printf("value_1.bits[3] == %x\n", value_1.bits[3]);
-    // printf("\n");
+    value_2.bits[0] = 123;
+    set_scale(&value_2, 2);
+    s21_mod(value_1, value_2, &result);
     printf("result.bits[0] == %u\n", result.bits[0]);
     printf("result.bits[1] == %x\n", result.bits[1]);
     printf("result.bits[2] == %x\n", result.bits[2]);
