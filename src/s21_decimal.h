@@ -9,8 +9,13 @@
 #define s21_NAN 0.0 / 0.0
 #define s21_INF 1.0 / 0.0
 
+#define TRUE 1
+#define FALSE 0
+
+enum returns { OK, INF, NEGATIVE_INF, DIVISION_BY_ZERO };
+
 typedef struct {
-    unsigned int bits[4];
+  unsigned int bits[4];
 } s21_decimal;
 
 int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
@@ -35,5 +40,7 @@ int s21_floor(s21_decimal value, s21_decimal *result);
 int s21_round(s21_decimal value, s21_decimal *result);
 int s21_truncate(s21_decimal value, s21_decimal *result);
 int s21_negate(s21_decimal value, s21_decimal *result);
+void s21_set_sign(s21_decimal *varPtr, int sign);
+int s21_get_sign(const s21_decimal *varPtr);
 
 #endif  // SRC_S21_DECIMAL_H_
