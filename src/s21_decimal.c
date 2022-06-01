@@ -116,7 +116,7 @@ void scale_equalize(s21_decimal *value_1, s21_decimal *value_2) {
             for (int i = 0; i < difference; i++) {
                 mul_only_bits(*value_2, ten, value_2);
             }
-            set_scale(value_2, get_scale(value_2));
+            set_scale(value_2, get_scale(value_1));
         } else {
             for (int i = 0; i < difference; i++) {
                 minus_scale(value_1);
@@ -425,40 +425,40 @@ void clear_bits(s21_decimal *varPtr) {
     memset(varPtr->bits, 0, sizeof(varPtr->bits));
 }
 
-// int main() {
-//     // s21_decimal value_1;
-//     // s21_decimal value_2;
-//     // s21_decimal value_3;
-//     // for (int i = 0; i < 4; i++) {
-//     //     value_1.bits[i] = 0;
-//     //     value_2.bits[i] = 0;
-//     //     value_3.bits[i] = 0;
-//     // }
-//     // value_1.bits[0] = 0xFFFFFFFF;
-//     // value_1.bits[1] = 0xFFFFFFFF;
-//     // value_1.bits[2] = 0xFFFFFFFF;
-//     // set_sign(&value_1, 1);
+int main() {
+    // s21_decimal value_1;
+    // s21_decimal value_2;
+    // s21_decimal value_3;
+    // for (int i = 0; i < 4; i++) {
+    //     value_1.bits[i] = 0;
+    //     value_2.bits[i] = 0;
+    //     value_3.bits[i] = 0;
+    // }
+    // value_1.bits[0] = 0xFFFFFFFF;
+    // value_1.bits[1] = 0xFFFFFFFF;
+    // value_1.bits[2] = 0xFFFFFFFF;
+    // set_sign(&value_1, 1);
 
-//     // value_2.bits[0] = 1;
+    // value_2.bits[0] = 1;
 
-//     s21_decimal value_1 = {{64071, 0, 0, 0}};
-//     set_scale(&value_1, 4);
-//     s21_decimal value_2 = {{5919, 0, 0, 0}};
-//     set_scale(&value_2, 1);
+    s21_decimal value_1 = {{45, 0, 0, 0}};
+    set_scale(&value_1, 1);
+    s21_decimal value_2 = {{3, 0, 0, 0}};
+    // set_scale(&value_2, 1);
     
-//     s21_decimal value_3;
-//     int return_value = s21_sub(value_1, value_2, &value_3);
-//     printf("return_value == %d\n", return_value);
-//     printf("value_3.bits[0] == %u\n", value_3.bits[0]);
-//     printf("value_3.bits[1] == %x\n", value_3.bits[1]);
-//     printf("value_3.bits[2] == %x\n", value_3.bits[2]);
-//     printf("value_3.bits[3] == %x\n", value_3.bits[3]);
-//     printf("value_3 scale == %d\n", get_scale(&value_3));
-//     printf("value_3 sign == %d\n", get_sign(&value_3));
+    s21_decimal value_3;
+    int return_value = s21_sub(value_1, value_2, &value_3);
+    printf("return_value == %d\n", return_value);
+    printf("value_3.bits[0] == %u\n", value_3.bits[0]);
+    printf("value_3.bits[1] == %x\n", value_3.bits[1]);
+    printf("value_3.bits[2] == %x\n", value_3.bits[2]);
+    printf("value_3.bits[3] == %x\n", value_3.bits[3]);
+    printf("value_3 scale == %d\n", get_scale(&value_3));
+    printf("value_3 sign == %d\n", get_sign(&value_3));
 
-//     for (int i = 95; i >= 0; i--) {
-//         printf("%d", get_bit(value_3, i));
-//     }
-//     printf("\n");
-//     return 0;
-// }
+    for (int i = 95; i >= 0; i--) {
+        printf("%d", get_bit(value_3, i));
+    }
+    printf("\n");
+    return 0;
+}
