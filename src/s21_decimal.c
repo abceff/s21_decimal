@@ -444,8 +444,6 @@ int s21_is_less(s21_decimal dec1, s21_decimal dec2) {
     return s21_is_greater(dec2, dec1);
 }
 
-// 210                // 210
-// 100                // 010
 void div_only_bits(s21_decimal number_1, s21_decimal number_2, s21_decimal *buf,
                    s21_decimal *result) {
     clear_bits(buf);
@@ -570,46 +568,71 @@ int s21_mod(s21_decimal number_1, s21_decimal number_2,
     s21_decimal zero = {{0, 0, 0, 0}};
     if (s21_is_equal(number_2, zero)) {
         return_value = DIVISION_BY_ZERO;
+    } else {
+        // оба числа положительные
+        if (!get_sign(&number_1) && !get_sign(&number_2)) {
+            while (s21_is_greater_or_equal(number_1, number_2)) {
+                printf("number_1 do == %u\n", number_1.bits[0]);
+                s21_sub(number_1, number_2, &number_1);
+                printf("number_1 posle == %u\n", number_1.bits[0]);
+            }
+        // первое число положительное, второе отрицательное
+        } else if (!get_sign(&number_1) && get_sign(&number_2)) {
+            while (s21_is_greater_or_equal(number_1, number_2)) {
+                s21_sub(number_1, number_2, &number_1);
+            }
+        // первое число отрицательное, второе положительно
+        } else if (get_sign(&number_1) && !get_sign(&number_2)) {
+            set_sign(&number_1, 0);
+            while (s21_is_greater_or_equal(number_1, number_2)) {
+                s21_sub(number_1, number_2, &number_1);
+            }
+            set_sign(&number_1, 1);
+        } else if (get_sign(&number_1) && get_sign(&number_2)) {
+            set_sign(&number_1, 0);
+            while (s21_is_greater_or_equal(number_1, number_2)) {
+                s21_sub(number_1, number_2, &number_1);
+            }
+            set_sign(&number_1, 1);
+        }
+        *result = number_1;
     }
-    s21_decimal tmp;
-    clear_bits(&tmp);  //  на всякий случай
-    while (s21_is_greater(number_1, number_2)) {
-        s21_sub(number_1, number_2, &number_1);
-    }
-    s21_div(number_1, number_2, &tmp);
-    s21_truncate(tmp, &tmp);
-    s21_mul(tmp, number_2, &tmp);
-    s21_sub(number_1, tmp, result);
+
     return return_value;
 }
 
-// int main() {
-//     s21_decimal value_1;
-//     s21_decimal value_2;
-//     s21_decimal result;
-//     for (int i = 0; i < 4; i++) {
-//         value_1.bits[i] = 0;
-//         value_2.bits[i] = 0;
-//         result.bits[i] = 0;
-//     }
-//     value_1.bits[0] = 45;
-//     set_scale(&value_1, 1);
-//     value_2.bits[0] = 3;
-//     s21_mod(value_1, value_2, &result);
-//     // printf("value_1.bits[0] == %u\n", value_1.bits[0]);
-//     // printf("value_1.bits[1] == %x\n", value_1.bits[1]);
-//     // printf("value_1.bits[2] == %x\n", value_1.bits[2]);
-//     // printf("value_1.bits[3] == %x\n", value_1.bits[3]);
-//     // printf("\n");
-//     printf("result.bits[0] == %u\n", result.bits[0]);
-//     printf("result.bits[1] == %x\n", result.bits[1]);
-//     printf("result.bits[2] == %x\n", result.bits[2]);
-//     printf("result.bits[3] == %x\n", result.bits[3]);
-//     printf("result scale == %d\n", get_scale(&result));
-//     printf("result sign == %d\n", get_sign(&result));
-//     for (int i = 95; i >= 0; i--) {
-//         printf("%d", get_bit(result, i));
-//     }
+int main() {
+    s21_decimal value_1;
+    s21_decimal value_2;
+    s21_decimal result;
+    for (int i = 0; i < 4; i++) {
+        value_1.bits[i] = 0;
+        value_2.bits[i] = 0;
+        result.bits[i] = 0;
+    }
+    value_1.bits[0] = 45;
+    set_scale(&value_1, 1);
+    value_2.bits[0] = 3;
+    s21_sub(value_1, value_2, &result);
+    // printf("value_1.bits[0] == %u\n", value_1.bits[0]);
+    // printf("value_1.bits[1] == %x\n", value_1.bits[1]);
+    // printf("value_1.bits[2] == %x\n", value_1.bits[2]);
+    // printf("value_1.bits[3] == %x\n", value_1.bits[3]);
+    // printf("\n");
+    printf("result.bits[0] == %u\n", result.bits[0]);
+    printf("result.bits[1] == %x\n", result.bits[1]);
+    printf("result.bits[2] == %x\n", result.bits[2]);
+    printf("result.bits[3] == %x\n", result.bits[3]);
+    printf("result scale == %d\n", get_scale(&result));
+    printf("result sign == %d\n", get_sign(&result));
+    for (int i = 95; i >= 0; i--) {
+        printf("%d", get_bit(result, i));
+    }
 
+    return 0;
+}
+
+// int main() {
+//     printf("%d\n", -5 % -2);
 //     return 0;
 // }
