@@ -54,8 +54,7 @@ void init_struct(s21_decimal *varPtr);
 void set_bit(s21_decimal *varPtr, int bit, int value);
 void set_sign(s21_decimal *varPtr, int sign);
 void clear_bits(s21_decimal *varPtr);
-int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal *result,
-                 int offset_left_result);
+int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal *result);
 void div_only_bits(s21_decimal a, s21_decimal b, s21_decimal *buf,
                    s21_decimal *result);
 s21_decimal check_for_mul(s21_decimal number_1, s21_decimal number_2);
