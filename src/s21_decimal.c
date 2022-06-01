@@ -443,82 +443,6 @@ int s21_div(s21_decimal divident, s21_decimal divisor, s21_decimal *result) {
     return return_value;
 }
 
-int s21_mod(s21_decimal divident, s21_decimal divisor, s21_decimal *result) {
-    int return_value = OK;
-    clear_bits(result);
-
-    s21_decimal zero = {{0, 0, 0, 0}};
-
-    if (s21_is_equal(divisor, zero) == TRUE) {
-        //    +-x/0
-        return_value = DIVISION_BY_ZERO;
-        clear_bits(result);
-
-    } else {
-        int beginScale = get_scale(&divident) - get_scale(&divisor);
-        int resultSign = get_sign(&divident) != get_sign(&divisor);
-
-        s21_decimal remainder = {0}, tmp = {0};
-
-        // для предсказуемости зачищаем
-        set_scale(&divisor, 0);
-        set_scale(&divident, 0);
-        set_sign(&divisor, 0);
-        set_sign(&divident, 0);
-
-        // первое целочисленное деление
-        // 100    // 10
-        div_only_bits(divident, divisor, &remainder, &tmp);
-        bits_copy(tmp, result);
-
-        // 1/10 от макс значения децимал - граница от переполнения
-        s21_decimal border_value = {{4294967295u, 4294967295, 4294967295u, 0}};
-        s21_decimal ten = {{10, 0, 0, 0}};
-        set_scale(&border_value, 1);
-
-        int inside_scale = 0;
-
-        // делим, пока не достигнем максимальной точности или пока не поделим
-        // без остатка
-
-        for (int i = 95; i >= 0; i--) {
-            printf("%d", get_bit(*result, i));
-        }
-        printf("\n");
-        for (; inside_scale <= 27 && s21_is_equal(remainder, zero) == FALSE;) {
-            if (s21_is_less(*result, border_value) == FALSE) {
-                break;
-            }
-            s21_mul(remainder, ten, &remainder);
-            div_only_bits(remainder, divisor, &remainder, &tmp);
-            s21_mul(*result, ten, result);
-            bit_addition(*result, tmp, result);
-            inside_scale++;
-            for (int i = 95; i >= 0; i--) {
-                printf("%d", get_bit(*result, i));
-            }
-            printf("\n");
-        }
-
-        s21_decimal musor;
-        // вводим итоговый скейл в требуемые границы
-        int endScale = beginScale + inside_scale;
-        for (; endScale > 28;) {
-            div_only_bits(*result, ten, &musor, result);
-            endScale--;
-        }
-        for (; endScale < 0;) {
-            s21_mul(*result, ten, result);
-            endScale++;
-        }
-
-        set_scale(result, endScale);
-        set_sign(result, resultSign);
-    }
-
-    return return_value;
-}
-
 int s21_add(s21_decimal number_1, s21_decimal number_2, s21_decimal *result) {
     int return_value = OK;
     // s21_decimal res = check_for_add(number_1, number_2);
@@ -658,7 +582,7 @@ int s21_sub(s21_decimal number_1, s21_decimal number_2, s21_decimal *result) {
     return return_value;
 }
 
-int s21_truncate(s21_decimal number_1, s21_decimal* result) {
+int s21_truncate(s21_decimal number_1, s21_decimal *result) {
     s21_decimal ten = {{10, 0, 0, 0}};
     s21_decimal tmp = {{0, 0, 0, 0}};
 
@@ -679,28 +603,51 @@ int s21_truncate(s21_decimal number_1, s21_decimal* result) {
     return OK;
 }
 
-// int main() {
-//     s21_decimal value_1;
-//     s21_decimal value_2;
-//     for (int i = 0; i < 4; i++) {
-//         value_1.bits[i] = 0;
-//         value_2.bits[i] = 0;
-//     }
-//     value_1.bits[0] = 35;
-//     set_scale(&value_1, 1);
-//     s21_truncate(value_1, &value_2);
-//     printf("value_1.bits[0] == %u\n", value_1.bits[0]);
-//     printf("value_1.bits[1] == %x\n", value_1.bits[1]);
-//     printf("value_1.bits[2] == %x\n", value_1.bits[2]);
-//     printf("value_1.bits[3] == %x\n", value_1.bits[3]);
-//     printf("\n");
-//     printf("value_2.bits[0] == %u\n", value_2.bits[0]);
-//     printf("value_2.bits[1] == %x\n", value_2.bits[1]);
-//     printf("value_2.bits[2] == %x\n", value_2.bits[2]);
-//     printf("value_2.bits[3] == %x\n", value_2.bits[3]);
-//     for (int i = 95; i >= 0; i--) {
-//         printf("%d", get_bit(value_2, i));
-//     }
+int s21_mod(s21_decimal number_1, s21_decimal number_2,
+            s21_decimal *result) {  // нужны проверки
+    int return_value = OK;
+    clear_bits(result);
+    s21_decimal zero = {{0, 0, 0, 0}};
+    if (s21_is_equal(number_2, zero)) {
+        return_value = DIVISION_BY_ZERO;
+    }
+    s21_decimal tmp;
+    clear_bits(&tmp);  //  на всякий случай
+    s21_div(number_1, number_2, &tmp);
+    printf("%d\n", tmp.bits[0]);
+    s21_truncate(tmp, &tmp);
+    printf("%d\n", tmp.bits[0]);
+    s21_mul(tmp, number_2, &tmp);
+    printf("%d\n", tmp.bits[0]);
+    s21_sub(number_1, tmp, result);
+    printf("%d\n", result->bits[0]);
+    return return_value;
+}
 
-//     return 0;
-// }
+int main() {
+    s21_decimal value_1;
+    s21_decimal value_2;
+    s21_decimal result;
+    for (int i = 0; i < 4; i++) {
+        value_1.bits[i] = 0;
+        value_2.bits[i] = 0;
+        result.bits[i] = 0;
+    }
+    value_1.bits[0] = 7;
+    value_2.bits[0] = 2;
+    s21_mod(value_1, value_2, &result);
+    // printf("value_1.bits[0] == %u\n", value_1.bits[0]);
+    // printf("value_1.bits[1] == %x\n", value_1.bits[1]);
+    // printf("value_1.bits[2] == %x\n", value_1.bits[2]);
+    // printf("value_1.bits[3] == %x\n", value_1.bits[3]);
+    // printf("\n");
+    printf("result.bits[0] == %u\n", result.bits[0]);
+    printf("result.bits[1] == %x\n", result.bits[1]);
+    printf("result.bits[2] == %x\n", result.bits[2]);
+    printf("result.bits[3] == %x\n", result.bits[3]);
+    for (int i = 95; i >= 0; i--) {
+        printf("%d", get_bit(result, i));
+    }
+
+    return 0;
+}
