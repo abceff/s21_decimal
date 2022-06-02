@@ -62,7 +62,7 @@ void add_only_bits(s21_decimal number_1, s21_decimal number_2, s21_decimal* resu
 s21_decimal check_for_mul(s21_decimal number_1, s21_decimal number_2);
 s21_decimal check_for_add(s21_decimal number_1, s21_decimal number_2);
 
-#define SUCESS 0
+#define SUCCESS 0
 #define CONVERTING_ERROR 1
 
 int s21_from_int_to_decimal(int src, s21_decimal *dst);

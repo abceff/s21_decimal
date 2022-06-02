@@ -114,8 +114,7 @@ int bit_addition(s21_decimal var1, s21_decimal var2, s21_decimal *result) {
                 buffer = 1;
             }
         }
-        if (i == 95 && buffer == 1)
-            return_value = INF;
+        if (i == 95 && buffer == 1) return_value = INF;
     }
 
     return return_value;
@@ -352,8 +351,7 @@ int s21_mul(s21_decimal number_1, s21_decimal number_2, s21_decimal *result) {
         sign_result = 0;
     }
 
-    int last_bit_1 =
-        last_bit(number_1);
+    int last_bit_1 = last_bit(number_1);
     s21_decimal tmp_res = {{0, 0, 0, 0}};
 
     int bit_addition_result = OK;
@@ -450,8 +448,7 @@ int s21_div(s21_decimal divident, s21_decimal divisor, s21_decimal *result) {
     return return_value;
 }
 
-int s21_mod(s21_decimal number_1, s21_decimal number_2,
-            s21_decimal *result) {
+int s21_mod(s21_decimal number_1, s21_decimal number_2, s21_decimal *result) {
     clear_bits(result);
     int return_value = OK;
     s21_decimal zero = {{0, 0, 0, 0}};
@@ -598,7 +595,7 @@ int s21_round(s21_decimal value, s21_decimal *result) {
     int return_value = OK;
     int sign = get_sign(&value);
     set_sign(&value, 0);
-    
+
     s21_decimal tmp = {{0}};
     s21_truncate(value, &tmp);
     s21_decimal tmp_copy = tmp;
@@ -612,8 +609,7 @@ int s21_round(s21_decimal value, s21_decimal *result) {
     } else {
         *result = tmp_copy;
     }
-    if (sign)
-        set_sign(result, 1);
+    if (sign) set_sign(result, 1);
     return return_value;
 }
 
@@ -624,6 +620,34 @@ int s21_floor(s21_decimal value, s21_decimal *result) {
     s21_decimal one = {{1, 0, 0, 0}};
     if (get_sign(&value)) {
         return_value = s21_sub(*result, one, result);
+    }
+    return return_value;
+}
+
+int s21_from_int_to_decimal(int src, s21_decimal *dst) {
+    int return_value = SUCCESS;
+    if (dst) {
+        clear_bits(dst);
+        if (src < 0) {
+            set_sign(dst, 1);
+            src *= -1;
+        }
+        dst->bits[0] = src;
+        if (src < 0) set_sign(dst, 1);
+    } else {
+        return_value = CONVERTING_ERROR;
+    }
+    return return_value;
+}
+
+int s21_from_decimal_to_int(s21_decimal src, int *dst) {
+    int return_value = s21_truncate(src, &src);
+    if (return_value != OK || src.bits[1] || src.bits[2] ||
+        src.bits[0] > 2147483647u) {
+        return_value = CONVERTING_ERROR;
+    } else {
+        *dst = src.bits[0];
+        if (get_sign(&src)) *dst *= -1;
     }
     return return_value;
 }
