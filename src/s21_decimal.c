@@ -604,11 +604,6 @@ int s21_round(s21_decimal value, s21_decimal *result) {
     s21_decimal tmp_copy = tmp;
     s21_sub(value, tmp, &tmp);
 
-    s21_decimal ten = {{10, 0, 0, 0}};
-    while (s21_is_greater_or_equal(tmp, ten)) {
-        s21_div(tmp, ten, &tmp);
-    }
-
     s21_decimal zero_five = {{5, 0, 0, 0}};
     s21_decimal one = {{1, 0, 0, 0}};
     set_scale(&zero_five, 1);
