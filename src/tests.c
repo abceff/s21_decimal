@@ -761,6 +761,78 @@ START_TEST(s21_mod_5) {
 }
 END_TEST
 
+START_TEST(s21_round_1) {
+    s21_decimal value_1 = {{7464923, 0, 0, 0}};
+    set_scale(&value_1, 5);
+    s21_decimal check = {{75, 0, 0, 0}};
+    s21_decimal result;
+    int return_value = s21_round(value_1, &result);
+    ck_assert_int_eq(s21_is_equal(result, check), 1);
+    ck_assert_int_eq(return_value, OK);
+}
+END_TEST
+
+START_TEST(s21_round_2) {
+    s21_decimal value_1 = {{7444923, 0, 0, 0}};
+    set_scale(&value_1, 5);
+    s21_decimal check = {{74, 0, 0, 0}};
+    s21_decimal result;
+    int return_value = s21_round(value_1, &result);
+    ck_assert_int_eq(s21_is_equal(result, check), 1);
+    ck_assert_int_eq(return_value, OK);
+}
+END_TEST
+
+START_TEST(s21_round_3) {
+    s21_decimal value_1 = {{7464923, 0, 0, 0}};
+    set_sign(&value_1, 1);
+    set_scale(&value_1, 5);
+    s21_decimal check = {{75, 0, 0, 0}};
+    set_sign(&check, 1);
+    s21_decimal result;
+    int return_value = s21_round(value_1, &result);
+    ck_assert_int_eq(s21_is_equal(result, check), 1);
+    ck_assert_int_eq(return_value, OK);
+}
+END_TEST
+
+START_TEST(s21_round_4) {
+    s21_decimal value_1 = {{7444923, 0, 0, 0}};
+    set_sign(&value_1, 1);
+    set_scale(&value_1, 5);
+    s21_decimal check = {{74, 0, 0, 0}};
+    set_sign(&check, 1);
+    s21_decimal result;
+    int return_value = s21_round(value_1, &result);
+    ck_assert_int_eq(s21_is_equal(result, check), 1);
+    ck_assert_int_eq(return_value, OK);
+}
+END_TEST
+
+START_TEST(s21_floor_1) {
+    s21_decimal value_1 = {{7444923, 0, 0, 0}};
+    set_scale(&value_1, 5);
+    s21_decimal check = {{74, 0, 0, 0}};
+    s21_decimal result;
+    int return_value = s21_floor(value_1, &result);
+    ck_assert_int_eq(s21_is_equal(result, check), 1);
+    ck_assert_int_eq(return_value, OK);
+}
+END_TEST
+
+START_TEST(s21_floor_2) {
+    s21_decimal value_1 = {{7444923, 0, 0, 0}};
+    set_scale(&value_1, 5);
+    set_sign(&value_1, 1);
+    s21_decimal check = {{75, 0, 0, 0}};
+    set_sign(&check, 1);
+    s21_decimal result;
+    int return_value = s21_floor(value_1, &result);
+    ck_assert_int_eq(s21_is_equal(result, check), 1);
+    ck_assert_int_eq(return_value, OK);
+}
+END_TEST
+
 Suite *lib_suite(void) {
     Suite *s;
     s = suite_create("Check");
@@ -1109,6 +1181,36 @@ Suite *lib_suite(void) {
     tc_mod_5 = tcase_create("s21_mod_5");
     suite_add_tcase(s, tc_mod_5);
     tcase_add_test(tc_mod_5, s21_mod_5);
+
+    TCase *tc_round_1;
+    tc_round_1 = tcase_create("s21_round_1");
+    suite_add_tcase(s, tc_round_1);
+    tcase_add_test(tc_round_1, s21_round_1);
+
+    TCase *tc_round_2;
+    tc_round_2 = tcase_create("s21_round_2");
+    suite_add_tcase(s, tc_round_2);
+    tcase_add_test(tc_round_2, s21_round_2);
+
+    TCase *tc_round_3;
+    tc_round_3 = tcase_create("s21_round_3");
+    suite_add_tcase(s, tc_round_3);
+    tcase_add_test(tc_round_3, s21_round_3);
+
+    TCase *tc_round_4;
+    tc_round_4 = tcase_create("s21_round_4");
+    suite_add_tcase(s, tc_round_4);
+    tcase_add_test(tc_round_4, s21_round_4);
+
+    TCase *tc_floor_1;
+    tc_floor_1 = tcase_create("s21_floor_1");
+    suite_add_tcase(s, tc_floor_1);
+    tcase_add_test(tc_floor_1, s21_floor_1);
+
+    TCase *tc_floor_2;
+    tc_floor_2 = tcase_create("s21_floor_2");
+    suite_add_tcase(s, tc_floor_2);
+    tcase_add_test(tc_floor_2, s21_floor_2);
 
     return s;
 }

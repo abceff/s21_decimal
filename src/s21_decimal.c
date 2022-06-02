@@ -594,21 +594,56 @@ int s21_negate(s21_decimal value, s21_decimal *result) {
     return OK;
 }
 
-// int main() {
-//     s21_decimal value_1 = {{5, 0, 0, 0}};
+int s21_round(s21_decimal value, s21_decimal *result) {
+    int return_value = OK;
+    int sign = get_sign(&value);
+    set_sign(&value, 0);
     
-    
+    s21_decimal tmp = {{0}};
+    s21_truncate(value, &tmp);
+    s21_decimal tmp_copy = tmp;
+    s21_sub(value, tmp, &tmp);
 
-//     s21_decimal check = {{5, 0, 0, 0}};
-//     set_sign(&check, 1);
+    s21_decimal ten = {{10, 0, 0, 0}};
+    while (s21_is_greater_or_equal(tmp, ten)) {
+        s21_div(tmp, ten, &tmp);
+    }
+
+    s21_decimal zero_five = {{5, 0, 0, 0}};
+    s21_decimal one = {{1, 0, 0, 0}};
+    set_scale(&zero_five, 1);
+    if (s21_is_greater_or_equal(tmp, zero_five)) {
+        return_value = s21_add(tmp_copy, one, result);
+    } else {
+        *result = tmp_copy;
+    }
+    if (sign)
+        set_sign(result, 1);
+    return return_value;
+}
+
+int s21_floor(s21_decimal value, s21_decimal *result) {
+    clear_bits(result);
+    int return_value = OK;
+    s21_truncate(value, result);
+    s21_decimal one = {{1, 0, 0, 0}};
+    if (get_sign(&value)) {
+        return_value = s21_sub(*result, one, result);
+    }
+    return return_value;
+}
+
+// int main() {
+//     s21_decimal value_1 = {{7444923, 0, 0, 0}};
+//     set_scale(&value_1, 5);
+//     set_sign(&value_1, 1);
 
 //     s21_decimal result;
-//     s21_negate(value_1, &result);
+//     s21_floor(value_1, &result);
 
-//     printf("result.bits[0] == %x\n", result.bits[0]);
+//     printf("result.bits[0] == %u\n", result.bits[0]);
 //     printf("result.bits[1] == %x\n", result.bits[1]);
 //     printf("result.bits[2] == %x\n", result.bits[2]);
 //     printf("result.bits[3] == %x\n", result.bits[3]);
-//     printf("is_equal == %d\n", s21_is_equal(result, check));
 //     return 0;
 // }
