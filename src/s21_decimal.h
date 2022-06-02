@@ -6,17 +6,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define s21_NAN 0.0 / 0.0
-#define s21_INF 1.0 / 0.0
-// #define SIGNMASK 0x80000000
 #define TRUE 1
 #define FALSE 0
+#define SIGN 0x80000000
 
 enum returns { OK, INF, NEGATIVE_INF, DIVISION_BY_ZERO };
+enum converts { SUCCESS, CONVERTING_ERROR };
 
 typedef struct {
     unsigned int bits[4];
 } s21_decimal;
+
+typedef union {
+  int ui;
+  float fl;
+} floatbits;
 
 int s21_add(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
 int s21_sub(s21_decimal value_1, s21_decimal value_2, s21_decimal *result);
@@ -61,9 +65,6 @@ void sub_only_bits(s21_decimal number_1, s21_decimal number_2, s21_decimal* resu
 void add_only_bits(s21_decimal number_1, s21_decimal number_2, s21_decimal* result);
 s21_decimal check_for_mul(s21_decimal number_1, s21_decimal number_2);
 s21_decimal check_for_add(s21_decimal number_1, s21_decimal number_2);
-
-#define SUCCESS 0
-#define CONVERTING_ERROR 1
 
 int s21_from_int_to_decimal(int src, s21_decimal *dst);
 int s21_from_float_to_decimal(float src, s21_decimal *dst);

@@ -528,7 +528,7 @@ int s21_is_equal(s21_decimal value_1, s21_decimal value_2) {
 
     if (value_1.bits[0] == 0 && value_2.bits[0] == 0 && value_1.bits[1] == 0 &&
         value_2.bits[1] == 0 && value_1.bits[2] == 0 && value_2.bits[2] == 0) {
-        // is_equal = True
+        // is_equal = TRUE;
     } else if (value_1.bits[0] != value_2.bits[0] ||
                value_1.bits[1] != value_2.bits[1] ||
                value_1.bits[2] != value_2.bits[2] ||
@@ -592,6 +592,7 @@ int s21_negate(s21_decimal value, s21_decimal *result) {
 }
 
 int s21_round(s21_decimal value, s21_decimal *result) {
+    clear_bits(result);
     int return_value = OK;
     int sign = get_sign(&value);
     set_sign(&value, 0);
@@ -641,6 +642,7 @@ int s21_from_int_to_decimal(int src, s21_decimal *dst) {
 }
 
 int s21_from_decimal_to_int(s21_decimal src, int *dst) {
+    *dst = 0;
     int return_value = s21_truncate(src, &src);
     if (return_value != OK || src.bits[1] || src.bits[2] ||
         src.bits[0] > 2147483647u) {
@@ -652,17 +654,53 @@ int s21_from_decimal_to_int(s21_decimal src, int *dst) {
     return return_value;
 }
 
-// int main() {
-//     s21_decimal value_1 = {{7444923, 0, 0, 0}};
-//     set_scale(&value_1, 5);
-//     set_sign(&value_1, 1);
+int getFloatSign(float *src) { return *(int *)src >> 31; }
 
-//     s21_decimal result;
-//     s21_floor(value_1, &result);
+int getFloatExp(float *src) { return ((*(int *)src & ~SIGN) >> 23) - 127; }
 
-//     printf("result.bits[0] == %u\n", result.bits[0]);
-//     printf("result.bits[1] == %x\n", result.bits[1]);
-//     printf("result.bits[2] == %x\n", result.bits[2]);
-//     printf("result.bits[3] == %x\n", result.bits[3]);
-//     return 0;
-// }
+int s21_from_float_to_decimal(float src, s21_decimal *dst) {
+    clear_bits(dst);
+    int return_value = SUCCESS;
+
+    if (isinf(src) || isnan(src)) {
+        return_value = CONVERTING_ERROR;
+    } else {
+        if (src != 0) {
+            int sign = getFloatSign(&src), exp = getFloatExp(&src);
+            double temp = (double)fabs(src);
+            int off = 0;
+            for (; off < 28 && (int)temp / (int)pow(2, 21) == 0;
+                 temp *= 10, off++) {
+            }
+            temp = round(temp);
+            if (off <= 28 && (exp > -94 && exp < 96)) {
+                floatbits mant;
+                temp = (float)temp;
+                for (; fmod(temp, 10) == 0 && off > 0; off--, temp /= 10) {
+                }
+                mant.fl = temp;
+                exp = getFloatExp(&mant.fl);
+                dst->bits[exp / 32] |= 1 << exp % 32;
+                for (int i = exp - 1, j = 22; j >= 0; i--, j--)
+                    if ((mant.ui & (1 << j)) != 0)
+                        dst->bits[i / 32] |= 1 << i % 32;
+                dst->bits[3] = (sign << 31) | (off << 16);
+            }
+        }
+    }
+
+    return return_value;
+}
+
+int s21_from_decimal_to_float(s21_decimal src, float *dst) {
+    double temp = 0;
+    int off = 0;
+    for (int i = 0; i < 96; i++)
+        if ((src.bits[i / 32] & (1 << i % 32)) != 0) temp += pow(2, i);
+    if ((off = (src.bits[3] & ~SIGN) >> 16) > 0) {
+        for (int i = off; i > 0; i--) temp /= 10.0;
+    }
+    *dst = (float)temp;
+    *dst *= src.bits[3] >> 31 ? -1 : 1;
+    return OK;
+}
